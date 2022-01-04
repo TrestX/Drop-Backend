@@ -1,0 +1,46 @@
+stripe:
+  key: "sk_test_4eC39HqLyjWDarjtT1zdp7dc"
+  publishablekey: "sk_test_4eC39HqLyjWDarjtT1zdp7dc"
+log: "logfmt"
+log_level: "debug"
+address: ""
+port: ""
+salt: "our salt to beused"
+encryptionkey: "deliverooDataSuperSasdfg" #must be 16 24  or 32 for aes128 aes192 or aes256 respectively 
+tokensecret: "tokensecret"
+mongodb:
+  host: "cluster0.wj9ob.mongodb.net"
+  db: "mongodb+srv"
+  username: "neerajsinghi"
+  password:  "gf67fiCQG6Laz7JG"
+  dbname: "dropDB"
+gcp:
+  region: "us-east1"
+  bucket: "aekamtestbucket"
+  email: "testaccount1@vernal-isotope-327005.iam.gserviceaccount.com"
+  private_key: "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQD2isTGu/1SLEKi\n5b0ltAB/ofalppC3q3WZKN4roPefBOK9ennBfiAl5UfDqTjrMWxkvT93UA899UMe\nxy+FZIMVxiBTTpcWTFTB3aAP+1ZZbPfmBsCPJxilW8RkpGxr0VEjTQzuEc2GRwJr\na4xFtwgbFpj8azTkkvGfS6C1vJzHSPz6tBbqDzu9K6pfaGSkaIr/A3LzrKW73gAD\n9rMDtSBMpmA/0yGLlYM99g20CzH9fWXTpqwK5gNT/OG/xwfyxtdWbeZHFLM1Ticl\ngc55mNvBBO1jzI3DhEpnqYXbWs7nUgX0PWkVH6c6pDqMU1K6nycNxdZBUIllJ9zY\n5eH4wysVAgMBAAECggEAWQuk59ylMaU/yiMtLm11kqO2eH0RHu2EM3XhzKM+XIaA\nuIwAZuT9ioJl6aL4pmX67uW1gwv8/VVU0UyC+uxjNh2RtlUX19to735zHeKa/QCR\nBtlgejPWQH9FD06dxFFdO2FMbr4qW7nRA2hcSR/DAzmltuGnwHjcYTsJCCrf+0/J\naSNKx4hq+nxNHxaSiqMPttoByAg9U2VQbOwdGc/KxJsRIMiHkt16veU7R+qbZc0+\nXH7bxXC3cLhvIatf8xeydeHtqt92j9BPAzVCIfDPkHe7UT4n9k7qpCwpqX1ZZrtu\nDEfTmPg1dD0U8sv8ruyKf33b7rAlyWm16j8rmbHNLwKBgQD7Z4Fq8IgyiDPNrv09\nEAtNkFVgjXKqFVtmqKuowrYHtyoSwBXt/GFY54LrfDUa9+te+obnDOto/zEiC7N2\n0wh2+Lwxpt3XPhxBlnpPja9ZSlEAHrw3aJNSodUCyDEwxY9oljx0I5JEm//sHhnb\nPfaQ5z5qVNIazAKyE1PFpO5Q8wKBgQD7DIJf+oJwfLqnDtlVIXUh2sqNWHQDYx/2\nHvoDQHvhX6pupiccPNcmBhftdzKzupZjjvTzDlZDNeHUXrvoqCHFwdU0rIgFsV+r\nFh+w5Wx1m1uK12Sg3dlizzFYe696XYQHonRE7eCSHtKVFlX7KZA1w/o8bFP8/WVw\nHnRB0HHV1wKBgQDbvNJvaCGDGW0+AA80Cgv3FYqqQ7fPVa94AUFY1idIgx3xGZeR\nVaC4llHmBcBc/AjsEUlMNgykzzhgq52G5Flns2y6cUFBWvZTlXT+h7aV8tDtq++S\n9oKeHPkT32qvWF5KadYZJOY5tahw9rZe3L/gU15Iji6+YUaR4za7b7clZQKBgD/U\ne2WZ1QZywCZvoRSDEDwOXAe6IK0ny92RHLIs+BJid3vwpOsKEQ3q6LSI5QxLeadQ\nlrkhwQ8PqR6NA6vw671TPjlJUMBZy+A9HMumWYBBgvH3N++q2HXGBl7f+8rZ8hLa\n3EMWVE3ypkofxra4Z6Ez9fDc/jHJ37u1EowVSow7AoGAYQ/Yf7X0yFJuG/Q8qsvd\nSlBUmXg6OGErVAfl0KThRBrzvWfNi92AZlHcUh07tJUOeSlnbv3Jq7GQvSHdhI4f\nwddv+qbrHtrwCbWY4409lVyS2VX26wyMDVIcIht8OmKZrpIJsUYbJBNj5Zkvere1\nNaTQfOdFjvdcSZ1Ze780nms=\n-----END PRIVATE KEY-----\n"
+email:
+  from: ""
+
+website:
+  url: ""
+
+api:
+  addressurl: "https://api.drop-deliveryapp.com/docker1/address"
+  addressbyidurl: "https://api.drop-deliveryapp.com/docker1/address/"
+  orderIdsurl: "https://api.drop-deliveryapp.com/docker4/order/list/"
+  getorderbyid: "https://api.drop-deliveryapp.com/docker4/order/"
+  updateprofileurl: "https://api.drop-deliveryapp.com/docker1/user/profile"
+  getprofileurl: "https://api.drop-deliveryapp.com/docker1/user/profile"
+  getprofilebyidsurl: "https://api.drop-deliveryapp.com/docker1/user/list/"
+  getshop: "https://api.drop-deliveryapp.com/docker1/shop/"
+  getitem: "https://api.drop-deliveryapp.com/docker3/item/"
+  getitembyid: "https://api.drop-deliveryapp.com/docker3/item/list/"
+  getpaymentsbyids: "https://api.drop-deliveryapp.com/docker4/payments/list/"
+  getpaymentbyid: "https://api.drop-deliveryapp.com/docker4/payments/"
+  getcartbyid: "https://api.drop-deliveryapp.com/docker4/cart"
+  getcartbyids: "https://api.drop-deliveryapp.com/docker4/cart/list/"
+  getAppWalletURL: "https://api.drop-deliveryapp.com/docker2/apptrans"
+  getOrderreviewURL: "https://api.drop-deliveryapp.com/docker3/ratingsReviews"
+  updateShopReview: "https://api.drop-deliveryapp.com/docker1/shop/"
+  

@@ -1,0 +1,18 @@
+stripe:
+  key: "sk_test_51IyVEMJLd92jeqR31lNEwyCmZ4H3qCulCyPUTYwJE0YAqt7Y0pYLGdh5K2Dide1cOeOhyLl3Bqli85Wzi2RuG7gB003IYJxmhB"
+  publishablekey: "pk_test_51IyVEMJLd92jeqR3U9eMctCsqVejIGG8sVNzQlCzZdH4ElS6lDrl1HETv1UtEeiQYwV9Dv6DDKDMGFAph5m7lKPL00UwkYVd69"
+log: "logfmt"
+log_level: "debug"
+address: ""
+port: ""
+salt: "our salt to beused"
+tokensecret: "tokensecret"
+mongodb:
+  host: "cluster0.wj9ob.mongodb.net"
+  db: "mongodb+srv"
+  username: "neerajsinghi"
+  password:  "gf67fiCQG6Laz7JG"
+  dbname: "dropDB"
+
+
+  

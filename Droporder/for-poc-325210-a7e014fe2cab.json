@@ -1,0 +1,12 @@
+{
+  "type": "service_account",
+  "project_id": "for-poc-325210",
+  "private_key_id": "a7e014fe2cab7ce0c8686d30dd092ba032bc3f74",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQDFviWXirQValqj\nzTdeLcnJAmdAd2wtFP1ypPAqE8lyV6qDdH/melTh77wxtV5OUp+ZJKOyhKpm1lIl\nkoeHlzOcOlwbS8GRBOolpzW25DNWYzSMQ95/rCzDc9HaxbLLpcvpdUjFKFR7tFgm\nLvVz/vCH8R7Ygsylkolvh2BmvhBDaS7dnEMI26BIWaknku//DoVLRz/m+jZAEWRp\nqQUO29D+5wYgkIUPhzp6+E8usN8Oklwv27Mn+Gf5Z9ymfN+R54LK//q3scQ9o/77\nKQuBVYxSSDq8XO5kFDMoUa+62g68f62Qf425r2ObmbW2LBIHaicb1LYNGx2crsOo\nQFAw05N5AgMBAAECggEAH1U0XrFXPKd4Ckl7svwdY7DyTGg/51rSmCZjeb9d5bTX\na3H7zDjpF03l65h6A34bFOiV2bUkzRu7s4Fm4UjHoEMtEhQsbT6ynVnD7KF3MwKQ\nMoOUj3VoOGYzQ++cl6FDUNBJQhhUXq+iYhaBxSoJ0fiWcycypy+zgE0arN0D9bI/\nKna4wwhFIveXlfryR9KHAH+rNkCYakh2GTF08jWs48G52nSgHBPS54470RnZZOFT\nRGwOX5W4xUzCQSXwezYL49LCOQX2ScWM/OpCpjscE7yrOxtt/W/ouDoLZax2QCWX\ny1Vr4UAZhMtAxZxuVWURsBCnkLho+7x807/PsI/z8wKBgQDne7ab76yNSE68leL6\nrQmk4lhrRilmYNdsLgxSJlSm/fvvhREur0ZJLIPUedfeE36PuXBDPmPfMUMUx05K\nDN5V+IFmHaRpcGc31b1ZibP65xge6IIITZZMZiUKum6j5ZQT2jnOSfvJoWDikv5T\nVUB/CKLeC0vz/5VGuKpbyqpd+wKBgQDar52dGH4qmUZPTI/d+wOcgUXPdyuwHFeU\nbMeHS2rAA3E66l9WW9FkZdvZTPvyxoajEMiHVBZeR/CHe5UlYsGh0w7LVbloEjSp\nNP6lGV+dswF+COoxamwl46U9W9VJqtvGdRln2vz1piOidxPDT2ig3GWcKsgbZeqf\nbkHeJ1TeGwKBgQDQMGXV7UMldgjKd4vCpGnuD1wybtHBMAvPUcLnB25PGlLB4s3H\nTQBLw2t1Z3gMVUAYh1E+SRiNncKVJ4Nz+grlCzFl4/cAlYVfpC4+Hyjt2XXKJpb8\nXLt2Ts+1zGLBqTL6f+RJciSv/SIj5MwzqpLtLZk9Vq+i7RUWm/MrxyRejQKBgC1R\nSTs90R9oxe428nVQyC3NiDb2/iGvreJ/LFX4JfYGgJdx7DHMMzc3+HgugOONimcO\nWk/Y+A2voMOis4Sc032CbEVszVAovar25XI3MN5QMxX4KPf2ktTDOQHfHvL2KjcV\nGx+vfM43EJlhTcIimY8EPTZAk1lCJH3HbnTn96lTAoGAeqmvjtv4tGlOXTMbOmhe\nPdnQvZ+eXzdsbI2LvsZx5cm/jzS55+OCPHJNjeKbTUG2TBH0H8UORxwMKXxy8tr7\nVruc8pkxstaARebb24sg5aFkc8CE/M0sLVa4dp7KYnZPCF5vUKmE4JIOdVAe9Tg+\nE1ZNNnTICvEr5ad9zxo6dV4=\n-----END PRIVATE KEY-----\n",
+  "client_email": "drop-bucket@for-poc-325210.iam.gserviceaccount.com",
+  "client_id": "102478258609720096972",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/drop-bucket%40for-poc-325210.iam.gserviceaccount.com"
+}
