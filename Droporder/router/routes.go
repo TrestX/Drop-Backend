@@ -1,8 +1,10 @@
 package router
 
 import (
-	orderHandler "Drop/Droporder/handlers/order-handler"
 	"net/http"
+
+	orderHandler "Drop/Droporder/handlers/order-handler"
+
 )
 
 type Route struct {
@@ -74,7 +76,7 @@ var routes = Routes{
 	Route{
 		"order",
 		"GET",
-		"/order/admin/users/all",
+		"/order/admin/users/all/{deliveryID}",
 		orderHandler.GetAllUsers,
 	},
 	Route{
