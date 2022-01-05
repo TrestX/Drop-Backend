@@ -1,12 +1,7 @@
 package chatHandler
 
 import (
-	controller "Drop/DropChat/controller/chat"
-	"Drop/DropChat/log"
-	"Drop/DropChat/repository/chat"
 	"io/ioutil"
-
-	util "Drop/DropChat/utils"
 	"encoding/json"
 	"net/http"
 	"strings"
@@ -16,6 +11,12 @@ import (
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"go.mongodb.org/mongo-driver/bson"
+
+	controller "Drop/DropChat/controller/chat"
+	"Drop/DropChat/log"
+	"Drop/DropChat/repository/chat"
+	util "Drop/DropChat/utils"
+
 )
 
 var (
@@ -175,13 +176,15 @@ func GetChatWithUserID(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	var userId = mux.Vars(r)["userId"]
+	status := r.URL.Query().Get("status")
+	
 	if userId == "" {
 		log.ECLog1(errors.Wrapf(err, "unable to update "))
 		w.WriteHeader(http.StatusNotFound)
 		json.NewEncoder(w).Encode(bson.M{"status": false, "error": "Unable to update "})
 		return
 	}
-	data, err := chatService.GetChatForUser(userId, claim["userid"].(string))
+	data, err := chatService.GetChatForUser(userId, claim["userid"].(string),status)
 	if err != nil {
 		log.ECLog1(errors.Wrapf(err, "unable to retrieve chat"))
 
