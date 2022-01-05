@@ -74,9 +74,16 @@ var routes = Routes{
 	Route{
 		"order",
 		"GET",
+		"/order/admin/users/all",
+		orderHandler.GetAllUsers,
+	},
+	Route{
+		"order",
+		"GET",
 		"/order/latest/order",
 		orderHandler.GetLatestOrders,
 	},
+
 	Route{
 		"ordernotification",
 		"GET",

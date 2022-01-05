@@ -1,9 +1,10 @@
 package order
 
 import (
+	"time"
+
 	"Drop/Droporder/api"
 	entity "Drop/Droporder/entities"
-	"time"
 )
 
 type OrderService interface {
@@ -17,6 +18,7 @@ type OrderService interface {
 	GetActiveDeliveryOrders(token string, limit, skip int, deliveryID, status string) ([]OrderOutput, error)
 	GetAdminOrders(token string, limit, skip int, shopID, sellerID, deliveryId, userId, status, fromD, endD string) ([]AdminOrderOutput, error)
 	GetLatestOrders(userId, token string, limit, skip int) (AdminOrderOutput, error)
+	GetAllUsers(token string, limit, skip int, deliveryID, status string) ([]interface{}, error)
 }
 type Order struct {
 	PaymentID            string `bson:"payment_id" json:"payment_id"`

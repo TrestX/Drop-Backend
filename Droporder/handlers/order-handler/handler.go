@@ -421,6 +421,69 @@ func GetAllOrdersAdmin(w http.ResponseWriter, r *http.Request) {
 		"duration": duration,
 	})
 }
+func GetAllUsers(w http.ResponseWriter, r *http.Request) {
+	startTime := time.Now()
+	trestCommon.DLogMap("getting orders", logrus.Fields{
+		"start_time": startTime})
+	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	tokenString := strings.Split(r.Header.Get("Authorization"), " ")
+	if len(tokenString) < 2 {
+		w.WriteHeader(http.StatusUnauthorized)
+		json.NewEncoder(w).Encode(bson.M{"status": false, "error": "authorization failed"})
+		return
+	}
+	_, err := trestCommon.DecodeToken(tokenString[1])
+	if err != nil {
+		trestCommon.ECLog1(errors.Wrapf(err, "failed to authenticate token"))
+		w.WriteHeader(http.StatusUnauthorized)
+		json.NewEncoder(w).Encode(bson.M{"status": false, "error": "authorization failed"})
+		return
+	}
+	limit := 100
+	skip := 0
+	status := "Ordered"
+	limitS := r.URL.Query().Get("limit")
+	skipS := r.URL.Query().Get("skip")
+	statusS := r.URL.Query().Get("status")
+	if limitS != "" {
+		limit, err = strconv.Atoi(limitS)
+		if err != nil {
+			limit = 100
+		}
+	}
+	if skipS != "" {
+		skip, err = strconv.Atoi(skipS)
+		if err != nil {
+			skip = 0
+		}
+	}
+	if statusS != "" {
+		status = statusS
+	}
+	var deliveryID = mux.Vars(r)["deliveryID"]
+	if deliveryID == "" {
+		trestCommon.ECLog1(errors.Wrapf(err, "unable to get deliveryID"))
+		w.WriteHeader(http.StatusNotFound)
+		json.NewEncoder(w).Encode(bson.M{"status": false, "error": "Unable to get deliveryID"})
+		return
+	}
+	data, err := orderService.GetAllUsers(tokenString[1], limit, skip, deliveryID, status)
+	if err != nil {
+		trestCommon.ECLog1(errors.Wrapf(err, "unable to get orders"))
+
+		w.WriteHeader(http.StatusNotFound)
+		json.NewEncoder(w).Encode(bson.M{"status": false, "error": "unable to get orders"})
+		return
+	}
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(bson.M{"status": true, "error": "", "data": data})
+	endTime := time.Now()
+	duration := endTime.Sub(startTime)
+	trestCommon.DLogMap("orders retrieved", logrus.Fields{
+		"duration": duration,
+	})
+}
 
 func GetNewOrdersDelivery(w http.ResponseWriter, r *http.Request) {
 	startTime := time.Now()

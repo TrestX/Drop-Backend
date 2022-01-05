@@ -1,25 +1,23 @@
 package order
 
 import (
-	"Drop/Droporder/api"
-	entity "Drop/Droporder/entities"
+	"errors"
+	"fmt"
 	"math"
 	"math/rand"
-
-	notification "Drop/Droporder/repository/order/notificationrepo"
-	util "Drop/Droporder/util"
-	"fmt"
 	"strings"
-
-	"github.com/aekam27/trestCommon"
-
-	"Drop/Droporder/repository/order"
-	cart "Drop/Droporder/repository/order/cartrepo"
-	"errors"
 	"time"
 
+	"github.com/aekam27/trestCommon"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+
+	"Drop/Droporder/api"
+	entity "Drop/Droporder/entities"
+	"Drop/Droporder/repository/order"
+	cart "Drop/Droporder/repository/order/cartrepo"
+	notification "Drop/Droporder/repository/order/notificationrepo"
+	util "Drop/Droporder/util"
 )
 
 var (
@@ -231,6 +229,23 @@ func (*orderService) GetAllOrdersAdmin(token, status string, limit, skip int) ([
 	return orderList, nil
 }
 
+func (*orderService) GetAllUsers(token string, limit, skip int, deliveryID, status string) ([]interface{}, error) {
+	var orderList []interface{}
+
+	orders, err := repo.Find(bson.M{"delivery_details.delivery_id": deliveryID, "status": status}, bson.M{}, limit, skip)
+	if err != nil {
+		trestCommon.ECLog2(
+			"Get Order section",
+			err,
+		)
+		return orderList, err
+	}
+	for i := 0; i < len(orders); i++ {
+		payment, _ := getPaymentsDetails(orders[i].PaymentID, token)
+		orderList = append(orderList, payment.Shipping)
+	}
+	return orderList, nil
+}
 func constructAdminOutput(order entity.OrderDB, payment entity.PaymentDB, cart entity.CartDB, shopDetails entity.ShopDB, sellerDetails entity.UserDB) OrderOutput {
 	var orderOutput OrderOutput
 	orderOutput.ID = order.ID.Hex()
