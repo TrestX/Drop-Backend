@@ -105,6 +105,18 @@ func checkForChatSessionID(chatId string) (entity.ChatDB, error) {
 	return repo.FindOne(bson.M{"_id": id}, bson.M{})
 }
 
+func (*chatService) GetChatForUser(user_id, delivery_person_id string) (entity.ChatDB, error) {
+	filter := bson.M{"$or": bson.A{bson.M{"sender_id": user_id, "receiver_id": delivery_person_id}, bson.M{"receiver_id": user_id, "sender_id": delivery_person_id}}}
+	chats, err := repo.FindOne(filter, bson.M{})
+	if err != nil {
+		log.ECLog2(
+			"Get Cart section",
+			err,
+		)
+		return entity.ChatDB{}, err
+	}
+	return chats, nil
+}
 func (*chatService) GetChat(chatId string) (entity.ChatDB, error) {
 	id, _ := primitive.ObjectIDFromHex(chatId)
 	chats, err := repo.FindOne(bson.M{"_id": id}, bson.M{})

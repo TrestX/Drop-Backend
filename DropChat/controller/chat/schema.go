@@ -12,6 +12,7 @@ type ChatService interface {
 	UpdateChat(userId string, chat Chats) (string, error)
 	GetChat(chatId string) (entity.ChatDB, error)
 	GetChats(userId, chatId, status string) ([]OP, error)
+	GetChatForUser(user_id, delivery_person_id string) (entity.ChatDB, error)
 }
 
 type Chats struct {

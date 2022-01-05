@@ -155,6 +155,48 @@ func GetChat(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
+func GetChatWithUserID(w http.ResponseWriter, r *http.Request) {
+	startTime := time.Now()
+	log.DLogMap("retrieving chat", logrus.Fields{
+		"start_time": startTime})
+	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	tokenString := strings.Split(r.Header.Get("Authorization"), " ")
+	if len(tokenString) < 2 {
+		w.WriteHeader(http.StatusUnauthorized)
+		json.NewEncoder(w).Encode(bson.M{"status": false, "error": "authorization failed"})
+		return
+	}
+	claim, err := util.DecodeToken(tokenString[1])
+	if err != nil {
+		log.ECLog1(errors.Wrapf(err, "failed to authenticate token"))
+		w.WriteHeader(http.StatusUnauthorized)
+		json.NewEncoder(w).Encode(bson.M{"status": false, "error": "authorization failed"})
+		return
+	}
+	var userId = mux.Vars(r)["userId"]
+	if userId == "" {
+		log.ECLog1(errors.Wrapf(err, "unable to update "))
+		w.WriteHeader(http.StatusNotFound)
+		json.NewEncoder(w).Encode(bson.M{"status": false, "error": "Unable to update "})
+		return
+	}
+	data, err := chatService.GetChatForUser(userId, claim["userid"].(string))
+	if err != nil {
+		log.ECLog1(errors.Wrapf(err, "unable to retrieve chat"))
+
+		w.WriteHeader(http.StatusNotFound)
+		json.NewEncoder(w).Encode(bson.M{"status": false, "error": "Unable to retrieve chat"})
+		return
+	}
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(bson.M{"status": true, "error": "", "data": data})
+	endTime := time.Now()
+	duration := endTime.Sub(startTime)
+	log.DLogMap("chat retrieved", logrus.Fields{
+		"duration": duration,
+	})
+}
 func GetChats(w http.ResponseWriter, r *http.Request) {
 	startTime := time.Now()
 	log.DLogMap("get all ", logrus.Fields{
