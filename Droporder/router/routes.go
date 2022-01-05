@@ -76,7 +76,7 @@ var routes = Routes{
 	Route{
 		"order",
 		"GET",
-		"/order/admin/users/all/{deliveryID}",
+		"/order/admin/users/all",
 		orderHandler.GetAllUsers,
 	},
 	Route{

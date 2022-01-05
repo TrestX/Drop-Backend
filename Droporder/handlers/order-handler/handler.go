@@ -1,13 +1,6 @@
 package orderHandler
 
 import (
-	controller "Drop/Droporder/controller/order"
-	"Drop/Droporder/repository/order"
-	notification "Drop/Droporder/repository/order/notificationrepo"
-	util "Drop/Droporder/util"
-
-	"github.com/aekam27/trestCommon"
-
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
@@ -15,10 +8,17 @@ import (
 	"strings"
 	"time"
 
+	"github.com/aekam27/trestCommon"
 	"github.com/gorilla/mux"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"go.mongodb.org/mongo-driver/bson"
+
+	controller "Drop/Droporder/controller/order"
+	"Drop/Droporder/repository/order"
+	notification "Drop/Droporder/repository/order/notificationrepo"
+	util "Drop/Droporder/util"
+
 )
 
 var (
@@ -433,7 +433,7 @@ func GetAllUsers(w http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(w).Encode(bson.M{"status": false, "error": "authorization failed"})
 		return
 	}
-	_, err := trestCommon.DecodeToken(tokenString[1])
+	claim, err := trestCommon.DecodeToken(tokenString[1])
 	if err != nil {
 		trestCommon.ECLog1(errors.Wrapf(err, "failed to authenticate token"))
 		w.WriteHeader(http.StatusUnauthorized)
@@ -461,14 +461,7 @@ func GetAllUsers(w http.ResponseWriter, r *http.Request) {
 	if statusS != "" {
 		status = statusS
 	}
-	var deliveryID = mux.Vars(r)["deliveryID"]
-	if deliveryID == "" {
-		trestCommon.ECLog1(errors.Wrapf(err, "unable to get deliveryID"))
-		w.WriteHeader(http.StatusNotFound)
-		json.NewEncoder(w).Encode(bson.M{"status": false, "error": "Unable to get deliveryID"})
-		return
-	}
-	data, err := orderService.GetAllUsers(tokenString[1], limit, skip, deliveryID, status)
+	data, err := orderService.GetAllUsers(tokenString[1], limit, skip, claim["userid"].(string), status)
 	if err != nil {
 		trestCommon.ECLog1(errors.Wrapf(err, "unable to get orders"))
 
