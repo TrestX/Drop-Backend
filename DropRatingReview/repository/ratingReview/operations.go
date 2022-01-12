@@ -111,3 +111,35 @@ func (r *repo) Find(filter, projection bson.M, limit, skip int) ([]entity.Rating
 	}
 	return ratingsReviews, nil
 }
+
+func (r *repo) FindWithIDs(filter, projection bson.M) ([]entity.RatingReviewDB, error) {
+	var users []entity.RatingReviewDB
+	cursor, err := trestCommon.Find(filter, projection, r.CollectionName)
+	if err != nil {
+		trestCommon.ECLog3(
+			"Find users",
+			err,
+			logrus.Fields{
+				"filter":          filter,
+				"collection name": r.CollectionName,
+			})
+		return nil, err
+	}
+	defer cursor.Close(context.Background())
+	for cursor.Next(context.TODO()) {
+		var user entity.RatingReviewDB
+		if err = cursor.Decode(&user); err != nil {
+			trestCommon.ECLog3(
+				"Find users",
+				err,
+				logrus.Fields{
+					"filter":          filter,
+					"collection name": r.CollectionName,
+					"error at":        cursor.RemainingBatchLength(),
+				})
+			return users, nil
+		}
+		users = append(users, user)
+	}
+	return users, nil
+}

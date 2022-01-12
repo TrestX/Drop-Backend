@@ -173,3 +173,35 @@ func GetReviewsAndRatings(w http.ResponseWriter, r *http.Request) {
 		"duration": duration,
 	})
 }
+
+func GetReviewRatingsWithIDs(w http.ResponseWriter, r *http.Request) {
+	startTime := time.Now()
+	trestCommon.DLogMap("getting users", logrus.Fields{
+		"start_time": startTime})
+	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	var err error
+	var users = mux.Vars(r)["reviewIds"]
+	if users == "" {
+		trestCommon.ECLog1(errors.Wrapf(err, "unable to get users"))
+
+		w.WriteHeader(http.StatusNotFound)
+		json.NewEncoder(w).Encode(bson.M{"status": false, "error": "Unable to get users"})
+		return
+	}
+	user := strings.Split(users, ",")
+	data, err := ratingReviewService.GetReviewRatingsWithIDs(user)
+	if err != nil {
+		trestCommon.ECLog1(errors.Wrapf(err, "unable to get users"))
+		w.WriteHeader(http.StatusNotFound)
+		json.NewEncoder(w).Encode(bson.M{"status": false, "error": "Unable to get users"})
+		return
+	}
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(bson.M{"status": true, "error": "", "data": data})
+	endTime := time.Now()
+	duration := endTime.Sub(startTime)
+	trestCommon.DLogMap("users retrieved", logrus.Fields{
+		"duration": duration,
+	})
+}

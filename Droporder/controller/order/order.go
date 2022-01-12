@@ -430,12 +430,29 @@ func (*orderService) GetAdminOrders(token string, limit, skip int, shopID, selle
 	}
 	var paymentIds []string
 	var cartIds []string
+	var sellerIds []string
+	var shopIds []string
+	var ratingReview []string
+	var deliveryIds []string
+	var userIds []string
 	for i := 0; i < len(orders); i++ {
 		paymentIds = append(paymentIds, orders[i].PaymentID)
 		cartIds = append(cartIds, orders[i].CartID)
+		sellerIds = append(sellerIds, orders[i].SellerID)
+		shopIds = append(shopIds, orders[i].ShopID)
+		userIds = append(userIds, orders[i].UserID)
+		ratingReview = append(ratingReview, orders[i].ID.Hex())
+		if orders[i].DeliveryDetails.DeliveryID != "" {
+			deliveryIds = append(deliveryIds, orders[i].DeliveryDetails.DeliveryID)
+		}
 	}
+	sellerDetails, _ := api.GetUsersDetailsByIDs(sellerIds)
 	payments, _ := api.GetUserPaymentDetailsPaymentIds(paymentIds)
 	carts, _ := api.GetCartsDetails(cartIds)
+	shopDetails, _ := api.GetShopDetailsByIDs(shopIds)
+	reviews, _ := api.GetRatingDetailsByIDs(ratingReview)
+	userDetails, _ := api.GetUsersDetailsByIDs(userIds)
+	deliveryDetails, _ := api.GetUsersDetailsByIDs(deliveryIds)
 	var orderOplist []AdminOrderOutput
 	for j := 0; j < len(orders); j++ {
 		var orderOp AdminOrderOutput
@@ -455,20 +472,60 @@ func (*orderService) GetAdminOrders(token string, limit, skip int, shopID, selle
 		newdownloadurl := createPreSignedDownloadUrl(payments[j].Shipping.ProfilePhoto)
 		payments[j].Shipping.ProfilePhoto = newdownloadurl
 		orderOp.DeliveryDetails = payments[j].Shipping
-		orderOp.ItemsOrdered = carts[j].Items
-		shopDetails, _ := api.GetShopDetails(orders[j].ShopID, token)
-		orderOp.ShopDetails = shopDetails
-		newtoken, _ := trestCommon.CreateToken(shopDetails.SellerID, "", "", "")
-		sellerDetails, _ := api.GetUserDetails(newtoken)
-		geoLocationU := orders[j].DeliveryDetails.UserAddress.GeoLocation["coordinates"].(primitive.A)
-		geoLocationS := orders[j].DeliveryDetails.ShopAddress.GeoLocation["coordinates"].(primitive.A)
-		distance := calculateDistance(geoLocationU[0].(float64), geoLocationU[1].(float64), geoLocationS[0].(float64), geoLocationS[1].(float64))
-		orderOp.Distance = distance
-		if orders[j].Status == "Delivered" {
-			review, _ := api.GetOrderReview(orders[j].ID.Hex(), " ")
-			orderOp.OrderReview = review[0]
+		if len(carts[j].Items) > 0 {
+			for h := 0; h < len(carts[j].Items); h++ {
+				newdownloadurl := createPreSignedDownloadUrl(carts[j].Items[h].Images[0])
+				carts[j].Items[h].Images[0] = newdownloadurl
+			}
 		}
-		orderOp.SellerDetails = sellerDetails
+
+		orderOp.ItemsOrdered = carts[j].Items
+
+		for _, userDetail := range userDetails {
+			if userDetail.ID.Hex() == orders[j].UserID {
+				newdownloadurl := createPreSignedDownloadUrl(userDetail.ProfilePhoto)
+				userDetail.ProfilePhoto = newdownloadurl
+				orderOp.UserDetails = userDetail
+			}
+		}
+		for _, shopDetail := range shopDetails {
+			if shopDetail.ID.Hex() == orders[j].ShopID {
+				newdownloadurl := createPreSignedDownloadUrl(shopDetail.ShopLogo)
+				shopDetail.ShopLogo = newdownloadurl
+				newdownloadurl = createPreSignedDownloadUrl(shopDetail.ShopBanner)
+				shopDetail.ShopBanner = newdownloadurl
+				orderOp.ShopDetails = shopDetail
+			}
+		}
+
+		geoLocationU, existU := orders[j].DeliveryDetails.UserAddress.GeoLocation["coordinates"]
+		geoLocationS, existS := orders[j].DeliveryDetails.ShopAddress.GeoLocation["coordinates"]
+		if existU && existS && geoLocationU != nil && geoLocationS != nil {
+			distance := calculateDistance(geoLocationU.(primitive.A)[0].(float64), geoLocationU.(primitive.A)[1].(float64), geoLocationS.(primitive.A)[0].(float64), geoLocationS.(primitive.A)[1].(float64))
+			orderOp.Distance = distance
+		}
+		if orders[j].Status == "Delivered" {
+			for _, review := range reviews {
+				if review.EntityID == orders[j].ID.Hex() {
+					orderOp.OrderReview = review
+				}
+			}
+		}
+		for _, deliveryDetail := range deliveryDetails {
+			if deliveryDetail.ID.Hex() == orders[j].DeliveryDetails.DeliveryID {
+				newdownloadurl := createPreSignedDownloadUrl(deliveryDetail.ProfilePhoto)
+				deliveryDetail.ProfilePhoto = newdownloadurl
+				orderOp.DeliveryPersonDetails = deliveryDetail
+			}
+		}
+		for _, sellerDetail := range sellerDetails {
+			if sellerDetail.ID.Hex() == orders[j].SellerID {
+				newdownloadurl := createPreSignedDownloadUrl(sellerDetail.ProfilePhoto)
+				sellerDetail.ProfilePhoto = newdownloadurl
+				orderOp.SellerDetails = sellerDetail
+			}
+		}
+
 		orderOplist = append(orderOplist, orderOp)
 	}
 	return orderOplist, nil
@@ -510,12 +567,29 @@ func (*orderService) GetLatestOrders(userId, token string, limit, skip int) (Adm
 	}
 	var paymentIds []string
 	var cartIds []string
+	var sellerIds []string
+	var shopIds []string
+	var ratingReview []string
+	var deliveryIds []string
+	var userIds []string
 	for i := 0; i < len(orders); i++ {
 		paymentIds = append(paymentIds, orders[i].PaymentID)
 		cartIds = append(cartIds, orders[i].CartID)
+		sellerIds = append(sellerIds, orders[i].SellerID)
+		shopIds = append(shopIds, orders[i].ShopID)
+		userIds = append(userIds, orders[i].UserID)
+		ratingReview = append(ratingReview, orders[i].ID.Hex())
+		if orders[i].DeliveryDetails.DeliveryID != "" {
+			deliveryIds = append(deliveryIds, orders[i].DeliveryDetails.DeliveryID)
+		}
 	}
+	sellerDetails, _ := api.GetUsersDetailsByIDs(sellerIds)
 	payments, _ := api.GetUserPaymentDetailsPaymentIds(paymentIds)
 	carts, _ := api.GetCartsDetails(cartIds)
+	shopDetails, _ := api.GetShopDetailsByIDs(shopIds)
+	reviews, _ := api.GetRatingDetailsByIDs(ratingReview)
+	userDetails, _ := api.GetUsersDetailsByIDs(userIds)
+	deliveryDetails, _ := api.GetUsersDetailsByIDs(deliveryIds)
 	var orderOplist []AdminOrderOutput
 	for j := 0; j < len(orders); j++ {
 		var orderOp AdminOrderOutput
@@ -535,20 +609,60 @@ func (*orderService) GetLatestOrders(userId, token string, limit, skip int) (Adm
 		newdownloadurl := createPreSignedDownloadUrl(payments[j].Shipping.ProfilePhoto)
 		payments[j].Shipping.ProfilePhoto = newdownloadurl
 		orderOp.DeliveryDetails = payments[j].Shipping
-		orderOp.ItemsOrdered = carts[j].Items
-		shopDetails, _ := api.GetShopDetails(orders[j].ShopID, token)
-		orderOp.ShopDetails = shopDetails
-		newtoken, _ := trestCommon.CreateToken(shopDetails.SellerID, "", "", "")
-		sellerDetails, _ := api.GetUserDetails(newtoken)
-		geoLocationU := orders[j].DeliveryDetails.UserAddress.GeoLocation["coordinates"].(primitive.A)
-		geoLocationS := orders[j].DeliveryDetails.ShopAddress.GeoLocation["coordinates"].(primitive.A)
-		distance := calculateDistance(geoLocationU[0].(float64), geoLocationU[1].(float64), geoLocationS[0].(float64), geoLocationS[1].(float64))
-		orderOp.Distance = distance
-		if orders[j].Status == "Delivered" {
-			review, _ := api.GetOrderReview(orders[j].ID.Hex(), " ")
-			orderOp.OrderReview = review[0]
+		if len(carts[j].Items) > 0 {
+			for h := 0; h < len(carts[j].Items); h++ {
+				newdownloadurl := createPreSignedDownloadUrl(carts[j].Items[h].Images[0])
+				carts[j].Items[h].Images[0] = newdownloadurl
+			}
 		}
-		orderOp.SellerDetails = sellerDetails
+
+		orderOp.ItemsOrdered = carts[j].Items
+
+		for _, userDetail := range userDetails {
+			if userDetail.ID.Hex() == orders[j].UserID {
+				newdownloadurl := createPreSignedDownloadUrl(userDetail.ProfilePhoto)
+				userDetail.ProfilePhoto = newdownloadurl
+				orderOp.UserDetails = userDetail
+			}
+		}
+		for _, shopDetail := range shopDetails {
+			if shopDetail.ID.Hex() == orders[j].ShopID {
+				newdownloadurl := createPreSignedDownloadUrl(shopDetail.ShopLogo)
+				shopDetail.ShopLogo = newdownloadurl
+				newdownloadurl = createPreSignedDownloadUrl(shopDetail.ShopBanner)
+				shopDetail.ShopBanner = newdownloadurl
+				orderOp.ShopDetails = shopDetail
+			}
+		}
+
+		geoLocationU, existU := orders[j].DeliveryDetails.UserAddress.GeoLocation["coordinates"]
+		geoLocationS, existS := orders[j].DeliveryDetails.ShopAddress.GeoLocation["coordinates"]
+		if existU && existS && geoLocationU != nil && geoLocationS != nil {
+			distance := calculateDistance(geoLocationU.(primitive.A)[0].(float64), geoLocationU.(primitive.A)[1].(float64), geoLocationS.(primitive.A)[0].(float64), geoLocationS.(primitive.A)[1].(float64))
+			orderOp.Distance = distance
+		}
+		if orders[j].Status == "Delivered" {
+			for _, review := range reviews {
+				if review.EntityID == orders[j].ID.Hex() {
+					orderOp.OrderReview = review
+				}
+			}
+		}
+		for _, deliveryDetail := range deliveryDetails {
+			if deliveryDetail.ID.Hex() == orders[j].DeliveryDetails.DeliveryID {
+				newdownloadurl := createPreSignedDownloadUrl(deliveryDetail.ProfilePhoto)
+				deliveryDetail.ProfilePhoto = newdownloadurl
+				orderOp.DeliveryPersonDetails = deliveryDetail
+			}
+		}
+		for _, sellerDetail := range sellerDetails {
+			if sellerDetail.ID.Hex() == orders[j].SellerID {
+				newdownloadurl := createPreSignedDownloadUrl(sellerDetail.ProfilePhoto)
+				sellerDetail.ProfilePhoto = newdownloadurl
+				orderOp.SellerDetails = sellerDetail
+			}
+		}
+
 		orderOplist = append(orderOplist, orderOp)
 	}
 	return orderOplist[0], nil

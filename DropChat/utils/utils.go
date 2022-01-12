@@ -20,6 +20,7 @@ import (
 	"strings"
 	"time"
 
+	"cloud.google.com/go/storage"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
@@ -105,19 +106,16 @@ func PreSignedUrl(filename, path string) (string, error) {
 }
 
 func PreSignedDownloadUrl(filename, path string) (string, error) {
-	filename = strings.ReplaceAll(filename, " ", "")
-	svc, err := createS3Session()
-	if err != nil {
-		log.ECLog2("unable to get s3 session", err)
-		return "", err
+	opts := &storage.SignedURLOptions{
+		Scheme:         storage.SigningSchemeV4,
+		Method:         "GET",
+		GoogleAccessID: viper.GetString("gcp.email"),
+		PrivateKey:     []byte(viper.GetString("gcp.private_key")),
+		Expires:        time.Now().Add(10069 * time.Minute),
 	}
-	req, _ := svc.GetObjectRequest(&s3.GetObjectInput{
-		Bucket: aws.String(viper.GetString("aws.bucket")),
-		Key:    aws.String(path + "/" + filename),
-	})
-	str, err := req.Presign(15 * time.Minute)
+	str, err := storage.SignedURL(viper.GetString("gcp.bucket"), filename, opts)
 	if err != nil {
-		log.ECLog2("failed to add expiry time to presigned url", err)
+		log.ECLog2("failed to create presigned url", err)
 		return "", err
 	}
 	return str, nil

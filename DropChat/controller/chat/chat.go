@@ -13,7 +13,6 @@ import (
 	"Drop/DropChat/log"
 	"Drop/DropChat/repository/chat"
 	util "Drop/DropChat/utils"
-
 )
 
 var (
@@ -27,22 +26,38 @@ func NewChatService(repository chat.ChatRepository) ChatService {
 	return &chatService{}
 }
 
-func (r *chatService) AddChat(userId string, chat Chats) (string, error) {
+func (r *chatService) AddChat(userId, receiverId string, chat Chats) (string, error) {
 	if userId == "" {
 		return "", errors.New("something went wrong")
 	}
-	var entityChat entity.ChatDB
-	entityChat.ID = primitive.NewObjectID()
-	entityChat.SenderID = userId
-	entityChat.AddedTime = time.Now()
-	entityChat.ReceiverID = ""
-	entityChat.Status = "Added"
-	util.SendNotificationWS("chat", "New", "broadcast", userId)
-	_, err := repo.InsertOne(entityChat)
+	data, err := r.GetChatForUser(userId, receiverId, "Added")
 	if err != nil {
-		return "", err
+		var entityChat entity.ChatDB
+		entityChat.ID = primitive.NewObjectID()
+		entityChat.SenderID = userId
+		token, _ := util.CreateToken(userId, "", "", "")
+		user, _ := api.GetUserDetails(token)
+		entityChat.SenderName = user.Name
+		entityChat.SenderImage = user.ProfilePhoto
+		entityChat.AddedTime = time.Now()
+		entityChat.ReceiverID = receiverId
+		if receiverId != "" {
+			token, _ := util.CreateToken(receiverId, "", "", "")
+			user, _ := api.GetUserDetails(token)
+			entityChat.ReceiverName = user.Name
+			entityChat.ReceiverImage = user.ProfilePhoto
+		}
+		entityChat.Chat = chat.Chat
+		entityChat.Status = "Added"
+		util.SendNotificationWS("chat", "New", "broadcast", userId)
+		util.SendNotificationWS("chat", "New", "broadcast", receiverId)
+		_, err := repo.InsertOne(entityChat)
+		if err != nil {
+			return "", err
+		}
+		return entityChat.ID.Hex(), nil
 	}
-	return entityChat.ID.Hex(), nil
+	return data.ID.Hex(), nil
 }
 
 func (r *chatService) UpdateChat(userId string, chat Chats) (string, error) {
@@ -56,6 +71,10 @@ func (r *chatService) UpdateChat(userId string, chat Chats) (string, error) {
 	setFil := bson.M{}
 	if data.SenderID != userId {
 		if data.ReceiverID == "" {
+			token, _ := util.CreateToken(userId, "", "", "")
+			user, _ := api.GetUserDetails(token)
+			setFil["receiver_name"] = user.Name
+			setFil["receiver_image"] = user.ProfilePhoto
 			setFil["receiver_id"] = userId
 			setFil["updated_time"] = time.Now()
 			setFil["receiver_join_time"] = time.Now()
@@ -94,12 +113,13 @@ func (r *chatService) UpdateChat(userId string, chat Chats) (string, error) {
 		return "", errors.New("somethingwent wrong")
 	}
 	if nCdata.ReceiverID != "" && nCdata.SenderID != "" {
-		util.SendNotificationWS("chat", "started", chat.ChatID, userId)
-		return "started", nil
+		util.SendNotificationWS("chat", "started", chat.ChatID, nCdata.SenderID)
+		util.SendNotificationWS("chat", "started", chat.ChatID, nCdata.ReceiverID)
+		return "updated chat " + nCdata.ID.Hex(), nil
 	} else {
 		util.SendNotificationWS("chat", "New", chat.ChatID, userId)
 	}
-	return "updated", nil
+	return "updated chat " + nCdata.ID.Hex(), nil
 }
 
 func checkForChatSessionID(chatId string) (entity.ChatDB, error) {
@@ -107,8 +127,8 @@ func checkForChatSessionID(chatId string) (entity.ChatDB, error) {
 	return repo.FindOne(bson.M{"_id": id}, bson.M{})
 }
 
-func (*chatService) GetChatForUser(user_id, delivery_person_id,status string) (entity.ChatDB, error) {
-	filter := bson.M{"$or": bson.A{bson.M{"sender_id": user_id, "receiver_id": delivery_person_id,"status":status}, bson.M{"receiver_id": user_id, "sender_id": delivery_person_id,"status":status}}}
+func (*chatService) GetChatForUser(user_id, delivery_person_id, status string) (entity.ChatDB, error) {
+	filter := bson.M{"$or": bson.A{bson.M{"sender_id": user_id, "receiver_id": delivery_person_id, "status": status}, bson.M{"receiver_id": user_id, "sender_id": delivery_person_id, "status": status}}}
 	chats, err := repo.FindOne(filter, bson.M{})
 	if err != nil {
 		log.ECLog2(
@@ -134,7 +154,7 @@ func (*chatService) GetChat(chatId string) (entity.ChatDB, error) {
 func (*chatService) GetChats(userId, chatId, status string) ([]OP, error) {
 	filter := bson.M{}
 	if userId != "" {
-		filter["sender_id"] = userId
+		filter["$or"] = bson.A{bson.M{"sender_id": userId}, bson.M{"receiver_id": userId}}
 	}
 	if status != "" {
 		filter["status"] = status
@@ -154,6 +174,9 @@ func (*chatService) GetChats(userId, chatId, status string) ([]OP, error) {
 	uIList := []string{}
 	for i := 0; i < len(chats); i++ {
 		uIList = append(uIList, chats[i].SenderID)
+		if chats[i].ReceiverID != "" {
+			uIList = append(uIList, chats[i].ReceiverID)
+		}
 	}
 	user, _ := api.GetUsersDetailsByIDs(uIList)
 	var oPList []OP
@@ -170,10 +193,19 @@ func (*chatService) GetChats(userId, chatId, status string) ([]OP, error) {
 		eTC.UpdatedTime = chats[i].UpdatedTime
 		for j := 0; j < len(user); j++ {
 			if user[j].ID.Hex() == chats[i].SenderID {
-				eTC.Email = user[j].Email
-				eTC.Name = user[j].Name
+				eTC.SenderEmail = user[j].Email
+				eTC.SenderName = user[j].Name
 				newPdownloadurl := createPreSignedDownloadUrl(user[j].ProfilePhoto)
-				eTC.ProfilePhoto = newPdownloadurl
+				eTC.SenderImage = newPdownloadurl
+				break
+			}
+		}
+		for j := 0; j < len(user); j++ {
+			if user[j].ID.Hex() == chats[i].ReceiverID {
+				eTC.ReceiverEmail = user[j].Email
+				eTC.ReceiverName = user[j].Name
+				newPdownloadurl := createPreSignedDownloadUrl(user[j].ProfilePhoto)
+				eTC.ReceiverImage = newPdownloadurl
 				break
 			}
 		}

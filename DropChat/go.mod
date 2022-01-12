@@ -3,6 +3,7 @@ module Drop/DropChat
 go 1.16
 
 require (
+	cloud.google.com/go/storage v1.18.2
 	github.com/aws/aws-sdk-go v1.40.8
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/go-kit/kit v0.11.0

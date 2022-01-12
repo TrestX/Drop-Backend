@@ -169,3 +169,54 @@ func GetOrderReview(id string, token string) ([]RatingReviewDB, error) {
 	err = json.Unmarshal(body, &response)
 	return response.Data, err
 }
+
+type UserIdsResponse struct {
+	Status bool
+	Data   []entity.UserDB
+}
+
+func GetUsersDetailsByIDs(userIds []string) ([]entity.UserDB, error) {
+	var users []entity.UserDB
+	url := viper.GetString("api.getprofilebyidsurl") + strings.Join(userIds, ",")
+	body, err := trestCommon.GetApi(" ", url)
+	if err != nil {
+		return users, err
+	}
+	var response UserIdsResponse
+	err = json.Unmarshal(body, &response)
+	return response.Data, err
+}
+
+type ShopIdsResponse struct {
+	Status bool
+	Data   []entity.ShopDB
+}
+
+func GetShopDetailsByIDs(shopIds []string) ([]entity.ShopDB, error) {
+	var users []entity.ShopDB
+	url := viper.GetString("api.getshopbyidsurl") + strings.Join(shopIds, ",")
+	body, err := trestCommon.GetApi(" ", url)
+	if err != nil {
+		return users, err
+	}
+	var response ShopIdsResponse
+	err = json.Unmarshal(body, &response)
+	return response.Data, err
+}
+
+type RatingReviewIdsResponse struct {
+	Status bool
+	Data   []RatingReviewDB
+}
+
+func GetRatingDetailsByIDs(ratingIds []string) ([]RatingReviewDB, error) {
+	var users []RatingReviewDB
+	url := viper.GetString("api.getratingbyidsurl") + strings.Join(ratingIds, ",")
+	body, err := trestCommon.GetApi(" ", url)
+	if err != nil {
+		return users, err
+	}
+	var response RatingReviewIdsResponse
+	err = json.Unmarshal(body, &response)
+	return response.Data, err
+}

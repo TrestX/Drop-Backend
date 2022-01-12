@@ -59,25 +59,28 @@ type GEO struct {
 	Data []float64 `bson:"data" json:"data"`
 }
 type AdminOrderOutput struct {
-	ID                 string                 `json:"order_Id"`
-	OrderStatus        string                 `json:"orderStatus"`
-	OrderedAt          time.Time              `json:"orderedAt"`
-	AcceptedAt         time.Time              `json:"accepted_at"`
-	DeliveredTime      time.Time              `json:"delivered_time"`
-	OrderPickeUpTime   time.Time              `json:"order_picke_up"`
-	ItemsOrdered       []entity.ItemDB        `json:"itemsOrdered"`
-	PaymentAmount      int64                  `json:"paymentAmount"`
-	PaymentCurrency    string                 `json:"paymentCurrency"`
-	OrderDescription   string                 `json:"orderDescription"`
-	PaymentStatus      string                 `json:"paymentStatus"`
-	CouponCode         string                 `json:"coupon_code"`
-	PaymentMethodTypes string                 `json:"payment_method"`
-	DeliveryDetails    entity.ShippingDetails `json:"deliveryDetails"`
-	ShopDetails        entity.ShopDB          `json:"shopDetails"`
-	SellerDetails      entity.UserDB          `json:"sellerDetails"`
-	OrderReview        api.RatingReviewDB     `json:"orderReview"`
-	Distance           float64                `json:"distance"`
-	TipAmount          int64                  `bson:"tip_amount" json:"tip_amount"`
+	ID                    string                 `json:"order_Id"`
+	OrderStatus           string                 `json:"orderStatus"`
+	OrderedAt             time.Time              `json:"orderedAt"`
+	AcceptedAt            time.Time              `json:"accepted_at"`
+	DeliveredTime         time.Time              `json:"delivered_time"`
+	OrderPickeUpTime      time.Time              `json:"order_picke_up"`
+	ItemsOrdered          []entity.ItemDB        `json:"itemsOrdered"`
+	PaymentAmount         int64                  `json:"paymentAmount"`
+	DeliveryPersonDetails entity.UserDB          `json:"deliveryPersonDetails"`
+	DeliveryID            string                 `bson:"delivery_id" json:"delivery_id"`
+	PaymentCurrency       string                 `json:"paymentCurrency"`
+	OrderDescription      string                 `json:"orderDescription"`
+	PaymentStatus         string                 `json:"paymentStatus"`
+	CouponCode            string                 `json:"coupon_code"`
+	PaymentMethodTypes    string                 `json:"payment_method"`
+	DeliveryDetails       entity.ShippingDetails `json:"deliveryDetails"`
+	ShopDetails           entity.ShopDB          `json:"shopDetails"`
+	SellerDetails         entity.UserDB          `json:"sellerDetails"`
+	OrderReview           api.RatingReviewDB     `json:"orderReview"`
+	Distance              float64                `json:"distance"`
+	TipAmount             int64                  `bson:"tip_amount" json:"tip_amount"`
+	UserDetails           entity.UserDB          `json:"userDetails"`
 }
 
 type AppWallet struct {

@@ -111,3 +111,20 @@ func (*ratingReviewService) GetRatingsReview(userId, entityId string, limit, ski
 	}
 	return ratingsReviews, nil
 }
+
+func (*ratingReviewService) GetReviewRatingsWithIDs(userIds []string) ([]entity.RatingReviewDB, error) {
+	subFilter := bson.A{}
+	for _, item := range userIds {
+		subFilter = append(subFilter, bson.M{"entity_id": item})
+	}
+	filter := bson.M{"$or": subFilter}
+	users, err := repo.FindWithIDs(filter, bson.M{})
+	if err != nil {
+		trestCommon.ECLog2(
+			"Get Carts section",
+			err,
+		)
+		return []entity.RatingReviewDB{}, err
+	}
+	return users, nil
+}

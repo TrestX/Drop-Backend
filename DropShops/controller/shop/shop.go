@@ -709,3 +709,26 @@ func (*shopService) GetTopRatedShopAdmin(limit, skip int, sellerId, sType, statu
 	}
 	return opList, nil
 }
+func (*shopService) GetAdminUsersWithIDs(shopIds []string) ([]entity.ShopDB, error) {
+	subFilter := bson.A{}
+	for _, item := range shopIds {
+		id, _ := primitive.ObjectIDFromHex(item)
+		subFilter = append(subFilter, bson.M{"_id": id})
+	}
+	filter := bson.M{"$or": subFilter}
+	users, err := repo.FindWithIDs(filter, bson.M{})
+	if err != nil {
+		trestCommon.ECLog2(
+			"Get Carts section",
+			err,
+		)
+		return []entity.ShopDB{}, err
+	}
+	for i := 0; i < len(users); i++ {
+		newPdownloadurl := createPreSignedDownloadUrl(users[i].ShopLogo)
+		users[i].ShopLogo = newPdownloadurl
+		newNdownloadurl := createPreSignedDownloadUrl(users[i].ShopBanner)
+		users[i].ShopBanner = newNdownloadurl
+	}
+	return users, nil
+}

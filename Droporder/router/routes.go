@@ -4,7 +4,6 @@ import (
 	"net/http"
 
 	orderHandler "Drop/Droporder/handlers/order-handler"
-
 )
 
 type Route struct {
@@ -86,10 +85,18 @@ var routes = Routes{
 		orderHandler.GetLatestOrders,
 	},
 
+	//
+
 	Route{
 		"ordernotification",
 		"GET",
 		"/notification",
 		orderHandler.Getnotification,
+	},
+	Route{
+		"ordernotification",
+		"GET",
+		"/notification/clearall",
+		orderHandler.Deletenotification,
 	},
 }

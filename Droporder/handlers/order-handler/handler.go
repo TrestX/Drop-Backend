@@ -18,7 +18,6 @@ import (
 	"Drop/Droporder/repository/order"
 	notification "Drop/Droporder/repository/order/notificationrepo"
 	util "Drop/Droporder/util"
-
 )
 
 var (
@@ -70,7 +69,7 @@ func Getnotification(w http.ResponseWriter, r *http.Request) {
 	userId := ""
 	topic := ""
 	title := ""
-	status := ""
+	status := "Active"
 	limit := 20
 	skip := 0
 	var err error
@@ -105,6 +104,67 @@ func Getnotification(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	data, err := notificationService.GetNotifications(limit, skip, status, userId, topic, title)
+	if err != nil {
+		trestCommon.ECLog1(errors.Wrapf(err, "unable to get notification"))
+
+		w.WriteHeader(http.StatusNotFound)
+		json.NewEncoder(w).Encode(bson.M{"status": false, "error": "Unable to get notification"})
+		return
+	}
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(bson.M{"status": true, "error": "", "data": data})
+	endTime := time.Now()
+	duration := endTime.Sub(startTime)
+	trestCommon.DLogMap("get notification success", logrus.Fields{
+		"duration": duration,
+	})
+}
+
+func Deletenotification(w http.ResponseWriter, r *http.Request) {
+	startTime := time.Now()
+	trestCommon.DLogMap("get notifications", logrus.Fields{
+		"start_time": startTime})
+	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+
+	userId := ""
+	topic := ""
+	title := ""
+	status := "Active"
+	limit := 20
+	skip := 0
+	var err error
+	limitS := r.URL.Query().Get("limit")
+	skipS := r.URL.Query().Get("skip")
+	userIdS := r.URL.Query().Get("userId")
+	topicS := r.URL.Query().Get("topic")
+	statusS := r.URL.Query().Get("status")
+	titleS := r.URL.Query().Get("title")
+	if userIdS != "" {
+		userId = userIdS
+	}
+	if topicS != "" {
+		topic = topicS
+	}
+	if titleS != "" {
+		title = titleS
+	}
+	if statusS != "" {
+		status = statusS
+	}
+	if limitS != "" {
+		limit, err = strconv.Atoi(limitS)
+		if err != nil {
+			limit = 20
+		}
+	}
+	if skipS != "" {
+		skip, err = strconv.Atoi(skipS)
+		if err != nil {
+			skip = 0
+		}
+	}
+	data, err := notificationService.DeleteNotifications(limit, skip, status, userId, topic, title)
 	if err != nil {
 		trestCommon.ECLog1(errors.Wrapf(err, "unable to get notification"))
 

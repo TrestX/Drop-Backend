@@ -21,6 +21,7 @@ type ShopService interface {
 	GetShopAdmin(limit, skip int, sellerId, sType, status, featured, deal string) ([]OpSchema, error)
 	GetNearestShopAdmin(limit, skip int, sellerId, sType, status string, lat, long float64) ([]OpSchema, error)
 	GetTopRatedShopAdmin(limit, skip int, sellerId, sType, status string) ([]OpSchema, error)
+	GetAdminUsersWithIDs(userIds []string) ([]entity.ShopDB, error)
 }
 
 type Shop struct {

@@ -1,8 +1,8 @@
 package chatHandler
 
 import (
-	"io/ioutil"
 	"encoding/json"
+	"io/ioutil"
 	"net/http"
 	"strings"
 	"time"
@@ -16,7 +16,6 @@ import (
 	"Drop/DropChat/log"
 	"Drop/DropChat/repository/chat"
 	util "Drop/DropChat/utils"
-
 )
 
 var (
@@ -51,7 +50,7 @@ func AddChat(w http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(w).Encode(bson.M{"status": false, "error": "authorization failed"})
 		return
 	}
-	data, err := chatService.AddChat(claims["userid"].(string), chats)
+	data, err := chatService.AddChat(claims["userid"].(string), chats.ReceiverID, chats)
 	if err != nil {
 		log.ECLog1(errors.Wrapf(err, "unable to add to chat"))
 
@@ -177,14 +176,14 @@ func GetChatWithUserID(w http.ResponseWriter, r *http.Request) {
 	}
 	var userId = mux.Vars(r)["userId"]
 	status := r.URL.Query().Get("status")
-	
+
 	if userId == "" {
 		log.ECLog1(errors.Wrapf(err, "unable to update "))
 		w.WriteHeader(http.StatusNotFound)
 		json.NewEncoder(w).Encode(bson.M{"status": false, "error": "Unable to update "})
 		return
 	}
-	data, err := chatService.GetChatForUser(userId, claim["userid"].(string),status)
+	data, err := chatService.GetChatForUser(userId, claim["userid"].(string), status)
 	if err != nil {
 		log.ECLog1(errors.Wrapf(err, "unable to retrieve chat"))
 

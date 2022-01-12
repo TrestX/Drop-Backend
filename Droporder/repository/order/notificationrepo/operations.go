@@ -3,6 +3,7 @@ package notification
 import (
 	entity "Drop/Droporder/entities"
 	"context"
+	"errors"
 
 	"github.com/aekam27/trestCommon"
 
@@ -33,6 +34,34 @@ func (r *repo) InsertOne(document interface{}) (string, error) {
 		return "", err
 	}
 	return "Added Successfully", nil
+}
+func (r *repo) UpdateOne(filter, update bson.M) (string, error) {
+	result, err := trestCommon.UpdateOne(filter, update, r.CollectionName)
+	if err != nil {
+		trestCommon.ECLog3(
+			"update order",
+			err,
+			logrus.Fields{
+				"filter":          filter,
+				"update":          update,
+				"collection name": r.CollectionName,
+			})
+
+		return "", err
+	}
+	if result.MatchedCount == 0 || result.ModifiedCount == 0 {
+		err = errors.New("order not found(404)")
+		trestCommon.ECLog3(
+			"update order",
+			err,
+			logrus.Fields{
+				"filter":          filter,
+				"update":          update,
+				"collection name": r.CollectionName,
+			})
+		return "", err
+	}
+	return "updated successfully", nil
 }
 
 func (r *repo) FindOne(filter, projection bson.M) (entity.MessageData, error) {
