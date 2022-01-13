@@ -89,10 +89,12 @@ func (*notificationService) SendNotificationWithTopic(title, body, topic, userid
 	_, err = client.Send(ctx, message)
 	if err != nil {
 		msg.Status = "Failed"
+		msg.NStatus = "Active"
 		_, err = repo.InsertOne(msg)
 		return "", errors.New("unable to send the notification")
 	}
 	msg.Status = "Success"
+	msg.NStatus = "Active"
 	msg.SentTime = time.Now()
 	return repo.InsertOne(msg)
 }
@@ -100,10 +102,10 @@ func (*notificationService) SendNotificationWithTopic(title, body, topic, userid
 func (*notificationService) GetNotifications(limit, skip int, status, userid, topic, title string) ([]entity.MessageData, error) {
 	filter := bson.M{}
 	if status != "" {
-		filter["status"] = status
+		filter["nstatus"] = status
 	}
 	if userid != "" {
-		filter["user_id"] = userid
+		filter["userId"] = userid
 	}
 	if topic != "" {
 		filter["topic"] = topic
@@ -113,4 +115,29 @@ func (*notificationService) GetNotifications(limit, skip int, status, userid, to
 	}
 
 	return repo.Find(filter, bson.M{}, 100, 0)
+}
+func (*notificationService) DeleteNotifications(limit, skip int, status, userid, topic, title string) (string, error) {
+	filter := bson.M{}
+	if status != "" {
+		filter["nstatus"] = status
+	}
+	if userid != "" {
+		filter["userId"] = userid
+	}
+	if topic != "" {
+		filter["topic"] = topic
+	}
+	if title != "" {
+		filter["title"] = title
+	}
+	noti, err := repo.Find(filter, bson.M{}, 300, 0)
+	if err != nil {
+		return "", errors.New("An Error Occured")
+	}
+	if len(noti) > 0 {
+		for i := 0; i < len(noti); i++ {
+			repo.UpdateOne(bson.M{"_id": noti[i].ID}, bson.M{"$set": bson.M{"nstatus": "Not Active"}})
+		}
+	}
+	return "success", nil
 }

@@ -29,6 +29,12 @@ var routes = Routes{
 	},
 	Route{
 		"chat",
+		"GET",
+		"/chat/user/{userId}",
+		chatHandler.GetChatWithUserID,
+	},
+	Route{
+		"chat",
 		"PUT",
 		"/chat",
 		chatHandler.UpdateChat,

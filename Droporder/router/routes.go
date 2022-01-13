@@ -1,8 +1,9 @@
 package router
 
 import (
-	orderHandler "Drop/Droporder/handlers/order-handler"
 	"net/http"
+
+	orderHandler "Drop/Droporder/handlers/order-handler"
 )
 
 type Route struct {
@@ -74,13 +75,28 @@ var routes = Routes{
 	Route{
 		"order",
 		"GET",
+		"/order/admin/users/all",
+		orderHandler.GetAllUsers,
+	},
+	Route{
+		"order",
+		"GET",
 		"/order/latest/order",
 		orderHandler.GetLatestOrders,
 	},
+
+	//
+
 	Route{
 		"ordernotification",
 		"GET",
 		"/notification",
 		orderHandler.Getnotification,
+	},
+	Route{
+		"ordernotification",
+		"GET",
+		"/notification/clearall",
+		orderHandler.Deletenotification,
 	},
 }

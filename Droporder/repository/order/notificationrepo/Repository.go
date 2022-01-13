@@ -9,5 +9,6 @@ import (
 type NotificationRepository interface {
 	InsertOne(document interface{}) (string, error)
 	FindOne(filter, projection bson.M) (entity.MessageData, error)
+	UpdateOne(filter, update bson.M) (string, error)
 	Find(filter, projection bson.M, limit, skip int) ([]entity.MessageData, error)
 }

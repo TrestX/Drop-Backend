@@ -88,4 +88,10 @@ var routes = Routes{
 		"/shop/admin/fastestDelivery",
 		shopHandler.GetNearestShopAdmin,
 	},
+	Route{
+		"profile",
+		"GET",
+		"/shop/list/{shopIds}",
+		shopHandler.GetShopsWithIDs,
+	},
 }

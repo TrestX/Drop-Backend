@@ -6,6 +6,7 @@ type RatingReviewService interface {
 	UpdateRatingReview(Id string, ratingReview RatingReviewSchema) (string, error)
 	AddRatingReview(userId, entityId, token string, ratingReview RatingReviewSchema) (string, error)
 	GetRatingsReview(userId, entityId string, limit, skip int) ([]entity.RatingReviewDB, error)
+	GetReviewRatingsWithIDs(userIds []string) ([]entity.RatingReviewDB, error)
 }
 
 type RatingReviewSchema struct {

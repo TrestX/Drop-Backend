@@ -34,4 +34,10 @@ var routes = Routes{
 		"/ratingsReviews/{entityID}",
 		ratingReviewHandler.AddReviewRating,
 	},
+	Route{
+		"rating-review",
+		"GET",
+		"/ratingsReviews/list/{reviewIds}",
+		ratingReviewHandler.GetReviewRatingsWithIDs,
+	},
 }

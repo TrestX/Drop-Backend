@@ -4,6 +4,7 @@ import (
 	"Drop/DropItems/api"
 	entity "Drop/DropItems/entities"
 	"math/rand"
+	"strings"
 
 	"Drop/DropItems/repository/item"
 	"errors"
@@ -343,15 +344,19 @@ func (*itemService) GetItemCategoryStructured(shopID, category, name, typee, sel
 	op := make(map[string][]interface{})
 	item, err := repo.Find(filter, bson.M{}, limit, skip)
 	for i := 0; i < len(item); i++ {
+		newdownloadurl := createPreSignedDownloadUrl(item[i].Images[0])
+		item[i].Images[0] = newdownloadurl
 		if _, ok := op[item[i].Category]; ok {
 			var l = op[item[i].Category]
 			var stru UOPStruct
 			stru.Item = item[i]
 			newtoken, _ := trestCommon.CreateToken(item[i].SellerID, "", "", "")
+
 			shopDetails, _ := api.GetShopDetails(item[i].ShopID, newtoken)
 			stru.Shop = shopDetails
 			review, _ := api.GetOrderReview(item[i].ID.Hex(), " ")
 			arview := 0
+
 			if len(review) > 0 {
 				rview := 0
 				for k := 0; k < len(review); k++ {
@@ -400,4 +405,17 @@ func (*itemService) GetItemCategoryStructured(shopID, category, name, typee, sel
 		return op, err
 	}
 	return op, nil
+}
+func createPreSignedDownloadUrl(url string) string {
+	s := strings.Split(url, "?")
+	if len(s) > 0 {
+		o := strings.Split(s[0], "/")
+		if len(o) > 3 {
+			fileName := o[4]
+			path := o[3]
+			downUrl, _ := trestCommon.PreSignedDownloadUrl(fileName, path)
+			return downUrl
+		}
+	}
+	return ""
 }

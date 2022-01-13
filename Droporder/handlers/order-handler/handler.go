@@ -1,13 +1,6 @@
 package orderHandler
 
 import (
-	controller "Drop/Droporder/controller/order"
-	"Drop/Droporder/repository/order"
-	notification "Drop/Droporder/repository/order/notificationrepo"
-	util "Drop/Droporder/util"
-
-	"github.com/aekam27/trestCommon"
-
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
@@ -15,10 +8,16 @@ import (
 	"strings"
 	"time"
 
+	"github.com/aekam27/trestCommon"
 	"github.com/gorilla/mux"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"go.mongodb.org/mongo-driver/bson"
+
+	controller "Drop/Droporder/controller/order"
+	"Drop/Droporder/repository/order"
+	notification "Drop/Droporder/repository/order/notificationrepo"
+	util "Drop/Droporder/util"
 )
 
 var (
@@ -70,7 +69,7 @@ func Getnotification(w http.ResponseWriter, r *http.Request) {
 	userId := ""
 	topic := ""
 	title := ""
-	status := ""
+	status := "Active"
 	limit := 20
 	skip := 0
 	var err error
@@ -105,6 +104,67 @@ func Getnotification(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	data, err := notificationService.GetNotifications(limit, skip, status, userId, topic, title)
+	if err != nil {
+		trestCommon.ECLog1(errors.Wrapf(err, "unable to get notification"))
+
+		w.WriteHeader(http.StatusNotFound)
+		json.NewEncoder(w).Encode(bson.M{"status": false, "error": "Unable to get notification"})
+		return
+	}
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(bson.M{"status": true, "error": "", "data": data})
+	endTime := time.Now()
+	duration := endTime.Sub(startTime)
+	trestCommon.DLogMap("get notification success", logrus.Fields{
+		"duration": duration,
+	})
+}
+
+func Deletenotification(w http.ResponseWriter, r *http.Request) {
+	startTime := time.Now()
+	trestCommon.DLogMap("get notifications", logrus.Fields{
+		"start_time": startTime})
+	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+
+	userId := ""
+	topic := ""
+	title := ""
+	status := "Active"
+	limit := 20
+	skip := 0
+	var err error
+	limitS := r.URL.Query().Get("limit")
+	skipS := r.URL.Query().Get("skip")
+	userIdS := r.URL.Query().Get("userId")
+	topicS := r.URL.Query().Get("topic")
+	statusS := r.URL.Query().Get("status")
+	titleS := r.URL.Query().Get("title")
+	if userIdS != "" {
+		userId = userIdS
+	}
+	if topicS != "" {
+		topic = topicS
+	}
+	if titleS != "" {
+		title = titleS
+	}
+	if statusS != "" {
+		status = statusS
+	}
+	if limitS != "" {
+		limit, err = strconv.Atoi(limitS)
+		if err != nil {
+			limit = 20
+		}
+	}
+	if skipS != "" {
+		skip, err = strconv.Atoi(skipS)
+		if err != nil {
+			skip = 0
+		}
+	}
+	data, err := notificationService.DeleteNotifications(limit, skip, status, userId, topic, title)
 	if err != nil {
 		trestCommon.ECLog1(errors.Wrapf(err, "unable to get notification"))
 
@@ -406,6 +466,62 @@ func GetAllOrdersAdmin(w http.ResponseWriter, r *http.Request) {
 		status = statusS
 	}
 	data, err := orderService.GetAllOrdersAdmin(tokenString[1], status, limit, skip)
+	if err != nil {
+		trestCommon.ECLog1(errors.Wrapf(err, "unable to get orders"))
+
+		w.WriteHeader(http.StatusNotFound)
+		json.NewEncoder(w).Encode(bson.M{"status": false, "error": "unable to get orders"})
+		return
+	}
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(bson.M{"status": true, "error": "", "data": data})
+	endTime := time.Now()
+	duration := endTime.Sub(startTime)
+	trestCommon.DLogMap("orders retrieved", logrus.Fields{
+		"duration": duration,
+	})
+}
+func GetAllUsers(w http.ResponseWriter, r *http.Request) {
+	startTime := time.Now()
+	trestCommon.DLogMap("getting orders", logrus.Fields{
+		"start_time": startTime})
+	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	tokenString := strings.Split(r.Header.Get("Authorization"), " ")
+	if len(tokenString) < 2 {
+		w.WriteHeader(http.StatusUnauthorized)
+		json.NewEncoder(w).Encode(bson.M{"status": false, "error": "authorization failed"})
+		return
+	}
+	claim, err := trestCommon.DecodeToken(tokenString[1])
+	if err != nil {
+		trestCommon.ECLog1(errors.Wrapf(err, "failed to authenticate token"))
+		w.WriteHeader(http.StatusUnauthorized)
+		json.NewEncoder(w).Encode(bson.M{"status": false, "error": "authorization failed"})
+		return
+	}
+	limit := 100
+	skip := 0
+	status := "Ordered"
+	limitS := r.URL.Query().Get("limit")
+	skipS := r.URL.Query().Get("skip")
+	statusS := r.URL.Query().Get("status")
+	if limitS != "" {
+		limit, err = strconv.Atoi(limitS)
+		if err != nil {
+			limit = 100
+		}
+	}
+	if skipS != "" {
+		skip, err = strconv.Atoi(skipS)
+		if err != nil {
+			skip = 0
+		}
+	}
+	if statusS != "" {
+		status = statusS
+	}
+	data, err := orderService.GetAllUsers(tokenString[1], limit, skip, claim["userid"].(string), status)
 	if err != nil {
 		trestCommon.ECLog1(errors.Wrapf(err, "unable to get orders"))
 

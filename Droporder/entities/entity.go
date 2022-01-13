@@ -209,6 +209,7 @@ type MessageData struct {
 	CategoryId string             `bson:"categoryId" json:"categoryId"`
 	SentTime   time.Time          `bson:"sentTime" json:"sentTime"`
 	Status     string             `bson:"status" json:"status"`
+	NStatus    string             `bson:"nStatus" json:"nStatus"`
 }
 
 type ResponseResult struct {
