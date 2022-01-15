@@ -13,7 +13,7 @@ type ItemService interface {
 	GetItemWithIDs(itemId []string) ([]entity.ItemDB, error)
 	GetShopFeaturedItem(shopID, category, shopType string, limit, skip int) ([]entity.ItemDB, error)
 	GetPopularItem(shopID, category, shopType string, limit, skip int) ([]entity.ItemDB, error)
-	GetItemCategoryStructured(shopID, category, name, typee, sellerId, search, featured, stypee string, limit, skip int) (map[string][]interface{}, error)
+	GetItemCategoryStructured(shopID, category, deal, name, typee, sellerId, search, featured, stypee string, limit, skip int) (map[string][]interface{}, error)
 }
 
 type Item struct {

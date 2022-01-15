@@ -19,8 +19,10 @@ type AccountService interface {
 }
 type Credentials struct {
 	Email             string    `bson:"email" json:"email,omitempty"`
+	CurrentPassword   string    `bson:"currentpassword" json:"currentpassword,omitempty"`
 	Password          string    `bson:"password" json:"password,omitempty"`
 	CreatedDate       time.Time `bson:"created_date" json:"created_date,omitempty"`
+	PhoneNo           string    `bson:"phone_number" json:"phone_number,omitempty"`
 	Name              string    `bson:"name" json:"name,omitempty"`
 	Status            string    `bson:"status" json:"status,omitempty"`
 	Gender            string    `bson:"gender" json:"gender,omitempty"`

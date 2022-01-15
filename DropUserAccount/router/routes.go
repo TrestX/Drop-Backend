@@ -34,6 +34,12 @@ var routes = Routes{
 		userHandler.Login,
 	},
 	Route{
+		"updatepass",
+		"PUT",
+		"/user/update/password",
+		userHandler.UpdatePassword,
+	},
+	Route{
 		"signup",
 		"POST",
 		"/user/google/login",
@@ -68,6 +74,12 @@ var routes = Routes{
 		"GET",
 		"/user/admin/profile",
 		profileHandler.GetAllProfile,
+	},
+	Route{
+		"profile",
+		"POST",
+		"/user/forgotpassword",
+		userHandler.SendPasswordResetLink,
 	},
 	Route{
 		"checkphone",

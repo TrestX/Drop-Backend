@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/aekam27/trestCommon"
+	"github.com/dgrijalva/jwt-go"
 
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
@@ -124,7 +125,15 @@ func (*adminService) Login(cred Credentials) (string, error) {
 		trestCommon.ECLog2("login failed password hash doesn't match", err)
 		return "", err
 	}
-	tokenString, err := trestCommon.CreateToken(userData.ID.Hex(), cred.Email, userData.Name, userData.Status)
+	atClaims := jwt.MapClaims{}
+	atClaims["authorized"] = true
+	atClaims["userid"] = userData.ID.Hex()
+	atClaims["email"] = cred.Email
+	atClaims["status"] = userData.Status
+	atClaims["role"] = userData.Role
+	atClaims["name"] = userData.Name
+	at := jwt.NewWithClaims(jwt.SigningMethodHS256, atClaims)
+	tokenString, err := at.SignedString([]byte(viper.GetString("tokensecret")))
 	if err != nil {
 		trestCommon.ECLog3("login failed unable to create token", err, logrus.Fields{"email": cred.Email, "name": userData.Name, "status": userData.Status})
 		return "", err

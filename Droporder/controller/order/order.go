@@ -182,7 +182,7 @@ func (*orderService) UpdateOrder(orderId string, order Order) (string, error) {
 	if order.DeliveryCode > 0 && order.DeliveryCode != porder.DeliveryCode {
 		return "", errors.New("deliverycode do not match")
 	}
-	set = bson.M{"$set": set}
+	set = bson.M{"$set": set, "$addToSet": bson.M{"order_status_list": bson.M{"status": order.Status, "created_time": time.Now()}}}
 	filter := bson.M{"_id": id}
 	return repo.UpdateOne(filter, set)
 }

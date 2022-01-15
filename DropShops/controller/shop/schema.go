@@ -18,7 +18,7 @@ type ShopService interface {
 	GetShopUsingID(shopId string, sellerId string) (entity.ShopDB, error)
 	GetFeaturedShop(limit, skip int) ([]entity.ShopDB, error)
 	SearchShopByType(typ string, limit, skip int) ([]entity.ShopDB, error)
-	GetShopAdmin(limit, skip int, sellerId, sType, status, featured, deal string) ([]OpSchema, error)
+	GetShopAdmin(limit, skip int, sellerId, sType, status, featured, deal, rating, priceu, pricel, lowest string, lat, long float64) ([]OpSchema, error)
 	GetNearestShopAdmin(limit, skip int, sellerId, sType, status string, lat, long float64) ([]OpSchema, error)
 	GetTopRatedShopAdmin(limit, skip int, sellerId, sType, status string) ([]OpSchema, error)
 	GetAdminUsersWithIDs(userIds []string) ([]entity.ShopDB, error)

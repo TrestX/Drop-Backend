@@ -29,6 +29,11 @@ type ShopDB struct {
 	CreatedTime     time.Time          `bson:"created_time" json:"created_time"`
 	UpdatedTime     time.Time          `bson:"updated_time" json:"updated_time"`
 }
+
+type OrderStatus struct {
+	Status      string    `bson:"status" json:"status"`
+	CreatedTime time.Time `bson:"created_time" json:"created_time"`
+}
 type OrderDB struct {
 	ID                primitive.ObjectID `bson:"_id" json:"order_id"`
 	DeliveryDetails   DeliveryDB         `bson:"delivery_details" json:"delivery_details"`
@@ -41,6 +46,7 @@ type OrderDB struct {
 	OrderPlacedTime   time.Time          `bson:"order_placed_time" json:"order_placed_time"`
 	OrderAcceptedTime time.Time          `bson:"order_accepted_time" json:"order_accepted_time"`
 	DeliveredTime     time.Time          `bson:"delivered_time" json:"delivered_time"`
+	OrderStatusList   []OrderStatus      `bson:"order_status_list" json:"order_status_list"`
 	OrderPickUpTime   time.Time          `bson:"order_pickup_time" json:"order_pickup_time"`
 	UpdatedTime       time.Time          `bson:"updated_time" json:"updated_time"`
 	AddedTime         time.Time          `bson:"added_time" json:"added_time"`

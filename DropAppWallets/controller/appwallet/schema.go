@@ -9,7 +9,7 @@ type AppWalletService interface {
 	UpdateTrans(transactionId, status string) (string, error)
 	GetTransaction(transactionId, status, entity, entityid, orderid string) (entity.AppWallet, error)
 	GetTransactions(transactionId, status, entity, entityid, orderid string, limit, skip int) ([]entity.AppWallet, error)
-	GetDeliveryPersonBalance(transactionId, status, entityid, orderid, token, fromD, endD string, limit, skip int) ([]entity.AppWallet, int64, int64, int64, int64, int64, int64, error)
+	GetDeliveryPersonBalance(transactionId, status, entityid, orderid, token, fromD, endD, typeD string, limit, skip int) ([]entity.AppWallet, int64, int64, int64, int64, int64, int64, float64, string, error)
 	GetSellerPersonBalance(transactionId, status, entityid, orderid, fromD, endD string, limit, skip int) ([]entity.AppWallet, int64, int64, int64, error)
 	GetTotalTransactions() (int64, error)
 	GetAppEarning() (int64, error)

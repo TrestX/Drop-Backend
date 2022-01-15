@@ -220,7 +220,7 @@ func (*accountService) SendResetLink(email string) (string, error) {
 	_, err = trestCommon.SendResetPasswordLink(email, resetCode)
 	if err != nil {
 		trestCommon.ECLog2("send reset password link failed", err)
-		return "", err
+		return "", errors.New("send reset password link failed")
 	}
 	_, err = repo.UpdateOne(bson.M{"email": email}, bson.M{"$set": bson.M{"email_sent_time": emailSentTime, "password_reset_code": verificationCode}})
 	if err != nil {
@@ -258,16 +258,22 @@ func (*accountService) UpdatePassword(cred Credentials) (string, error) {
 		trestCommon.ECLog2("update password failed no password", err)
 		return "", err
 	}
-
-	_, err := checkUser(cred)
-
+	if cred.CurrentPassword == "" {
+		err := errors.New("current password missing")
+		trestCommon.ECLog2("update password failed no password", err)
+		return "", err
+	}
+	salt := viper.GetString("salt")
+	userData, err := checkUser(cred)
 	if err != nil {
 		trestCommon.ECLog2("update password failed user not found", err)
 		return "", err
 	}
-
-	salt := viper.GetString("salt")
-
+	err = bcrypt.CompareHashAndPassword([]byte(userData.Password), []byte(cred.CurrentPassword+salt))
+	if err != nil {
+		trestCommon.ECLog3("hash password", err, logrus.Fields{"email": cred.Email})
+		return "", errors.New("password doesnot match")
+	}
 	hash, err := bcrypt.GenerateFromPassword([]byte(cred.Password+salt), 5)
 	if err != nil {
 		trestCommon.ECLog3("hash password", err, logrus.Fields{"email": cred.Email})

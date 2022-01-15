@@ -322,7 +322,9 @@ func GetDeliveryAppTransactions(w http.ResponseWriter, r *http.Request) {
 	if endDS != "" {
 		endD = endDS
 	}
-	data, total, settled, unsettled, totaltip, settledtip, unsettledtip, err := apptransactionService.GetDeliveryPersonBalance(transactionId, status, entityid, orderid, tokenString[1], fromD, endD, limit, skip)
+	typeD := r.URL.Query().Get("daytype")
+
+	data, total, settled, unsettled, totaltip, settledtip, unsettledtip, earningdiff, difftyp, err := apptransactionService.GetDeliveryPersonBalance(transactionId, status, entityid, orderid, tokenString[1], fromD, endD, typeD, limit, skip)
 	if err != nil {
 		trestCommon.ECLog1(errors.Wrapf(err, "unable to retrieve apptransaction"))
 
@@ -331,7 +333,7 @@ func GetDeliveryAppTransactions(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(bson.M{"status": true, "error": "", "data": data, "total": total, "settled": settled, "unsettled": unsettled, "totaltip": totaltip, "settledtip": settledtip, "unsettledtip": unsettledtip})
+	json.NewEncoder(w).Encode(bson.M{"status": true, "error": "", "data": data, "earningdiff": earningdiff, "difftyp": difftyp, "total": total, "settled": settled, "unsettled": unsettled, "totaltip": totaltip, "settledtip": settledtip, "unsettledtip": unsettledtip})
 	endTime := time.Now()
 	duration := endTime.Sub(startTime)
 	trestCommon.DLogMap("apptransaction retrieved", logrus.Fields{

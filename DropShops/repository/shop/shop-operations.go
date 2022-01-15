@@ -20,6 +20,22 @@ func NewShopRepository(collectionName string) ShopRepository {
 		CollectionName: collectionName,
 	}
 }
+func (r *repo) FindOneSetting(filter, projection bson.M) (entity.SettingDB, error) {
+	var setting entity.SettingDB
+	err := trestCommon.FindOne(filter, projection, "setting").Decode(&setting)
+	if err != nil {
+		trestCommon.ECLog3(
+			"Find setting",
+			err,
+			logrus.Fields{
+				"filter":          filter,
+				"collection name": r.CollectionName,
+			})
+		return setting, err
+	}
+	return setting, err
+}
+
 func (r *repo) InsertOne(document interface{}) (string, error) {
 	_, err := trestCommon.InsertOne(document, r.CollectionName)
 	if err != nil {

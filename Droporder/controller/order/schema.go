@@ -21,21 +21,22 @@ type OrderService interface {
 	GetAllUsers(token string, limit, skip int, deliveryID, status string) ([]interface{}, error)
 }
 type Order struct {
-	PaymentID            string `bson:"payment_id" json:"payment_id"`
-	ShopID               string `bson:"shop_id" json:"shop_id"`
-	CartID               string `bson:"cart_id" json:"cart_id"`
-	DeliveryID           string `bson:"delivery_id" json:"delivery_id"`
-	ShopAddressID        string `bson:"shop_address_id" json:"shop_address_id"`
-	UserAddressID        string `bson:"user_address_id" json:"user_address_id"`
-	TrackingID           string `bson:"tracking_id" json:"tracking_id"`
-	Status               string `bson:"status" json:"status"`
-	TipAmount            int64  `bson:"tip_amount" json:"tip_amount"`
-	SellerAmount         int64  `bson:"seller_amount" json:"seller_amount"`
-	DropAmount           int64  `bson:"drop_amount" json:"drop_amount"`
-	DeliveryCharge       int64  `bson:"delivery_charge" json:"delivery_charge"`
-	DeliveryPersonCut    int64  `bson:"delivery_person_cut" json:"delivery_person_cut"`
-	DeliveryPersonCutPer int64  `bson:"delivery_person_cut_per" json:"delivery_person_cut_per"`
-	DeliveryCode         int64  `bson:"delivery_code" json:"delivery_code"`
+	PaymentID            string               `bson:"payment_id" json:"payment_id"`
+	ShopID               string               `bson:"shop_id" json:"shop_id"`
+	CartID               string               `bson:"cart_id" json:"cart_id"`
+	DeliveryID           string               `bson:"delivery_id" json:"delivery_id"`
+	ShopAddressID        string               `bson:"shop_address_id" json:"shop_address_id"`
+	UserAddressID        string               `bson:"user_address_id" json:"user_address_id"`
+	TrackingID           string               `bson:"tracking_id" json:"tracking_id"`
+	Status               string               `bson:"status" json:"status"`
+	TipAmount            int64                `bson:"tip_amount" json:"tip_amount"`
+	SellerAmount         int64                `bson:"seller_amount" json:"seller_amount"`
+	DropAmount           int64                `bson:"drop_amount" json:"drop_amount"`
+	OrderStatusList      []entity.OrderStatus `bson:"order_status_list" json:"order_status_list"`
+	DeliveryCharge       int64                `bson:"delivery_charge" json:"delivery_charge"`
+	DeliveryPersonCut    int64                `bson:"delivery_person_cut" json:"delivery_person_cut"`
+	DeliveryPersonCutPer int64                `bson:"delivery_person_cut_per" json:"delivery_person_cut_per"`
+	DeliveryCode         int64                `bson:"delivery_code" json:"delivery_code"`
 }
 type OrderInteface struct {
 	OrderList   []entity.OrderDB   `json:"order_list"`
@@ -49,6 +50,7 @@ type OrderOutput struct {
 	AcceptedAt       time.Time              `json:"accepted_at"`
 	ItemsOrdered     []entity.ItemDB        `json:"itemsOrdered"`
 	PaymentAmount    int64                  `json:"paymentAmount"`
+	OrderStatusList  []entity.OrderStatus   `bson:"order_status_list" json:"order_status_list"`
 	PaymentCurrency  string                 `json:"paymentCurrency"`
 	OrderDescription string                 `json:"orderDescription"`
 	DeliveryDetails  entity.ShippingDetails `json:"deliveryDetails"`
@@ -78,6 +80,7 @@ type AdminOrderOutput struct {
 	ShopDetails           entity.ShopDB          `json:"shopDetails"`
 	SellerDetails         entity.UserDB          `json:"sellerDetails"`
 	OrderReview           api.RatingReviewDB     `json:"orderReview"`
+	OrderStatusList       []entity.OrderStatus   `bson:"order_status_list" json:"order_status_list"`
 	Distance              float64                `json:"distance"`
 	TipAmount             int64                  `bson:"tip_amount" json:"tip_amount"`
 	UserDetails           entity.UserDB          `json:"userDetails"`

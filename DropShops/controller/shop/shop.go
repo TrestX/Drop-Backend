@@ -4,6 +4,7 @@ import (
 	"Drop/DropShop/api"
 	entity "Drop/DropShop/entities"
 	"Drop/DropShop/repository/shop"
+	"strconv"
 
 	"github.com/aekam27/trestCommon"
 
@@ -480,13 +481,32 @@ func (add *shopService) AddShopAdmin(shop *Shop) (string, error) {
 	return result, nil
 }
 
-func (*shopService) GetShopAdmin(limit, skip int, sellerId, sType, status, featured, deal string) ([]OpSchema, error) {
+func (*shopService) GetShopAdmin(limit, skip int, sellerId, sType, status, featured, deal, rating, priceu, pricel, lowest string, lat, long float64) ([]OpSchema, error) {
 	filter := bson.M{}
 	if sellerId != "" {
-		filter["seller_id"] = sellerId
+		if strings.Contains(sellerId, ",") {
+			l := strings.Split(sellerId, ",")
+			subFilter := bson.A{}
+			for i := 0; i < len(l); i++ {
+				subFilter = append(subFilter, bson.M{"seller_id": l[i]})
+			}
+			filter = bson.M{"$or": subFilter}
+		} else {
+			filter["seller_id"] = sellerId
+		}
+
 	}
 	if sType != "" {
-		filter["type"] = sType
+		if strings.Contains(sType, ",") {
+			l := strings.Split(sType, ",")
+			subFilter := bson.A{}
+			for i := 0; i < len(l); i++ {
+				subFilter = append(subFilter, bson.M{"type": l[i]})
+			}
+			filter = bson.M{"$or": subFilter}
+		} else {
+			filter["type"] = sType
+		}
 	}
 	if featured != "" {
 		if featured == "1" {
@@ -497,8 +517,52 @@ func (*shopService) GetShopAdmin(limit, skip int, sellerId, sType, status, featu
 		filter["shop_status"] = status
 	}
 	if deal != "" {
-		filter["deal"] = deal
+		if strings.Contains(deal, ",") {
+			l := strings.Split(deal, ",")
+			subFilter := bson.A{}
+			for i := 0; i < len(l); i++ {
+				subFilter = append(subFilter, bson.M{"deal": bson.M{"$regex": "/" + l[i] + "/", "$options": "i"}})
+			}
+			filter = bson.M{"$or": subFilter}
+		} else {
+			filter["deal"] = bson.M{"$regex": "/" + deal + "/", "$options": "i"}
+		}
 	}
+	if rating != "" {
+		rat, _ := strconv.Atoi(rating)
+		filter["deal"] = bson.M{"$gt": rat}
+	}
+	if pricel != "" && priceu != "" {
+		pl, _ := strconv.Atoi(pricel)
+		pu, _ := strconv.Atoi(priceu)
+		filter["minorderamount"] = bson.M{"$lt": pl, "$gt": pu}
+	}
+
+	if lowest != "" {
+		low, err := strconv.Atoi(lowest)
+		if err == nil && low > 0 {
+			settings, _ := repo.FindOneSetting(bson.M{"current": true}, bson.M{})
+			rang := 0
+			for _, value := range settings.DeliveryCharge {
+				md, _ := value.(map[string]interface{})
+				if md["charge"].(int) <= low {
+					rang = md["range"].(int)
+				}
+			}
+			if lat > float64(0) && long > float64(0) {
+				filter["geo_location"] = bson.M{
+					"$near": bson.M{
+						"$geometry": bson.M{
+							"type":        "Point",
+							"coordinates": []float64{lat, long},
+						},
+						"$maxDistance": rang,
+					},
+				}
+			}
+		}
+	}
+
 	shops, err := repo.Find(filter, bson.M{}, limit, skip)
 	if err != nil {
 		return []OpSchema{}, err
