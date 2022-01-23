@@ -1,19 +1,19 @@
 package tracking
 
 import (
-	"Drop/DropDeliveryTracking/api"
-	entity "Drop/DropDeliveryTracking/entities"
-
-	"Drop/DropDeliveryTracking/repository/tracking"
 	"errors"
 	"strings"
 	"time"
 
 	"github.com/aekam27/trestCommon"
-
 	"github.com/sirupsen/logrus"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+
+	"Drop/DropDeliveryTracking/api"
+	entity "Drop/DropDeliveryTracking/entities"
+	"Drop/DropDeliveryTracking/repository/tracking"
+
 )
 
 var (
@@ -36,13 +36,39 @@ func (add *trackingService) AddLocation(tracking *Tracking, deliveryId string) (
 		)
 		return "", err
 	}
-	var trackingEntity entity.TrackingDB
+	_, err := checkByTrackingID(deliveryId)
+	if err != nil {
+		var trackingEntity entity.TrackingDB
 	trackingEntity.DeliveryID = deliveryId
 	trackingEntity.CreatedTime = time.Now()
 	trackingEntity.ID = primitive.NewObjectID()
 	geoLocation := []float64{tracking.Longitude, tracking.Latitude}
 	trackingEntity.GeoLocation = bson.M{"type": "Point", "coordinates": geoLocation}
 	return repo.InsertOne(trackingEntity)
+	}
+	setParameters := bson.M{}
+	if tracking.Latitude != 0 && tracking.Longitude != 0 {
+		geoLocation := []float64{tracking.Longitude, tracking.Latitude}
+		setParameters["geo_location"] = bson.M{"type": "Point", "coordinates": geoLocation}
+	}
+	setParameters["updated_time"] = time.Now()
+	filter := bson.M{"delivery_id": deliveryId}
+	set := bson.M{
+		"$set": setParameters,
+	}
+	result, err := repo.UpdateOne(filter, set)
+	if err != nil {
+		trestCommon.ECLog3(
+			"update tracking location",
+			err,
+			logrus.Fields{
+				"tracking_id": deliveryId,
+			})
+		return "", err
+	}
+
+	return result, nil
+	
 }
 
 func (*trackingService) UpdateLocation(tracking *Tracking, trackingid string) (string, error) {
@@ -54,18 +80,23 @@ func (*trackingService) UpdateLocation(tracking *Tracking, trackingid string) (s
 		)
 		return "", err
 	}
-	id, _ := primitive.ObjectIDFromHex(trackingid)
-	_, err := checkByTrackingID(id)
+	_, err := checkByTrackingID(trackingid)
 	if err != nil {
-		return "", errors.New("invalid tracking Id")
-	}
+		var trackingEntity entity.TrackingDB
+		trackingEntity.DeliveryID = trackingid
+		trackingEntity.CreatedTime = time.Now()
+		trackingEntity.ID = primitive.NewObjectID()
+		geoLocation := []float64{tracking.Longitude, tracking.Latitude}
+		trackingEntity.GeoLocation = bson.M{"type": "Point", "coordinates": geoLocation}
+		return repo.InsertOne(trackingEntity)
+		}
 	setParameters := bson.M{}
 	if tracking.Latitude != 0 && tracking.Longitude != 0 {
 		geoLocation := []float64{tracking.Longitude, tracking.Latitude}
 		setParameters["geo_location"] = bson.M{"type": "Point", "coordinates": geoLocation}
 	}
 	setParameters["updated_time"] = time.Now()
-	filter := bson.M{"_id": id}
+	filter := bson.M{"delivery_id": trackingid}
 	set := bson.M{
 		"$set": setParameters,
 	}
@@ -83,8 +114,8 @@ func (*trackingService) UpdateLocation(tracking *Tracking, trackingid string) (s
 	return result, nil
 }
 
-func checkByTrackingID(id primitive.ObjectID) (entity.TrackingDB, error) {
-	tracking, err := repo.FindOne(bson.M{"_id": id}, bson.M{})
+func checkByTrackingID(id string) (entity.TrackingDB, error) {
+	tracking, err := repo.FindOne(bson.M{"delivery_id": id}, bson.M{})
 	if err != nil {
 		trestCommon.ECLog2(
 			"Get Tracking Details section",
@@ -124,7 +155,7 @@ func (*trackingService) GetAllTrackingDetails(token string, limit, skip int) ([]
 
 func (*trackingService) GetTrackingByTrackingID(trackingId string) (entity.TrackingDB, error) {
 	id, _ := primitive.ObjectIDFromHex(trackingId)
-	tracking, err := repo.FindOne(bson.M{"_id": id}, bson.M{})
+	tracking, err := repo.FindOne(bson.M{"delivery_id": id}, bson.M{})
 	if err != nil {
 		trestCommon.ECLog2(
 			"Get Tracking Details section",

@@ -3,7 +3,7 @@ module Drop/DropPayments
 go 1.16
 
 require (
-	github.com/aekam27/trestCommon v0.0.0-20210921114008-a333e23f3e39 // indirect
+	github.com/aekam27/trestCommon v1.2.8
 	github.com/aws/aws-sdk-go v1.40.8
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/go-kit/kit v0.11.0

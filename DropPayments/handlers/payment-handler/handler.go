@@ -1,8 +1,6 @@
 package paymentHandler
 
 import (
-	controller "Drop/DropPayments/controller/payment"
-	"Drop/DropPayments/repository/payment"
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
@@ -11,12 +9,15 @@ import (
 	"time"
 
 	"github.com/aekam27/trestCommon"
-
 	"github.com/gorilla/mux"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 	"go.mongodb.org/mongo-driver/bson"
+
+	controller "Drop/DropPayments/controller/payment"
+	"Drop/DropPayments/repository/payment"
+
 )
 
 var (
@@ -350,28 +351,13 @@ func GetPaymentSuccessDetails(w http.ResponseWriter, r *http.Request) {
 		"start_time": startTime})
 	w.Header().Set("Content-Type", "application/json")
 	w.Header().Set("Access-Control-Allow-Origin", "*")
-	tokenString := strings.Split(r.Header.Get("Authorization"), " ")
-	if len(tokenString) < 2 {
-		w.WriteHeader(http.StatusUnauthorized)
-		json.NewEncoder(w).Encode(bson.M{"status": false, "error": "authorization failed"})
-		return
-	}
-	claims, err := trestCommon.DecodeToken(tokenString[1])
-	if err != nil {
-		trestCommon.ECLog1(errors.Wrapf(err, "failed to authenticate token"))
-		w.WriteHeader(http.StatusUnauthorized)
-		json.NewEncoder(w).Encode(bson.M{"status": false, "error": "authorization failed"})
-		return
-	}
 	var paymentID = mux.Vars(r)["paymentID"]
 	if paymentID == "" {
-		trestCommon.ECLog1(errors.Wrapf(err, "unable to set paymentID"))
-
 		w.WriteHeader(http.StatusNotFound)
 		json.NewEncoder(w).Encode(bson.M{"status": false, "error": "Unable to set paymentID"})
 		return
 	}
-	data, err := paymentService.UpdatePaymentStatusSuccess(claims["userid"].(string), paymentID)
+	data, err := paymentService.UpdatePaymentStatusSuccess(paymentID)
 	if err != nil {
 		trestCommon.ECLog1(errors.Wrapf(err, "unable to get payment details for user"))
 

@@ -1,19 +1,18 @@
 package payment
 
 import (
-	entity "Drop/DropPayments/entities"
-
-	payment "Drop/DropPayments/repository/payment"
 	"errors"
 	"strconv"
 	"time"
 
 	"github.com/aekam27/trestCommon"
-
-	"Drop/DropPayments/api"
-
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+
+	entity "Drop/DropPayments/entities"
+	payment "Drop/DropPayments/repository/payment"
+	"Drop/DropPayments/api"
+
 )
 
 var (
@@ -203,16 +202,13 @@ func (*paymentService) UpdatePaymentStatus(userId, paymentId, status string) (st
 	return repo.UpdateOne(filter, set)
 }
 
-func (*paymentService) UpdatePaymentStatusSuccess(userId, paymentId string) (string, error) {
-	if userId == "" {
-		return "", errors.New("Mandatory user id missing")
-	}
+func (*paymentService) UpdatePaymentStatusSuccess( paymentId string) (string, error) {
 	if paymentId == "" {
 		return "", errors.New("Mandatory payment id missing")
 	}
 	id, _ := primitive.ObjectIDFromHex(paymentId)
 	set := bson.M{"$set": bson.M{"status": "Success", "updated_time": time.Now()}}
-	filter := bson.M{"_id": id, "user_id": userId}
+	filter := bson.M{"_id": id}
 	return repo.UpdateOne(filter, set)
 }
 

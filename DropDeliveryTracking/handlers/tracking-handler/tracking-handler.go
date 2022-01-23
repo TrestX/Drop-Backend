@@ -1,10 +1,6 @@
 package addressHandler
 
 import (
-	controller "Drop/DropDeliveryTracking/controller/tracking"
-
-	"Drop/DropDeliveryTracking/repository/tracking"
-
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
@@ -13,11 +9,14 @@ import (
 	"time"
 
 	"github.com/aekam27/trestCommon"
-
 	"github.com/gorilla/mux"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"go.mongodb.org/mongo-driver/bson"
+
+	controller "Drop/DropDeliveryTracking/controller/tracking"
+	"Drop/DropDeliveryTracking/repository/tracking"
+
 )
 
 var (
@@ -36,7 +35,7 @@ func AddTracking(w http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(w).Encode(bson.M{"status": false, "error": "authorization failed"})
 		return
 	}
-	_, err := trestCommon.DecodeToken(tokenString[1])
+	claims, err := trestCommon.DecodeToken(tokenString[1])
 	if err != nil {
 		trestCommon.ECLog1(errors.Wrapf(err, "failed to authenticate token"))
 		w.WriteHeader(http.StatusUnauthorized)
@@ -59,7 +58,7 @@ func AddTracking(w http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(w).Encode(bson.M{"status": false, "error": "Unable to set tracking"})
 		return
 	}
-	data, err := trackingService.AddLocation(tracking, deliveryID)
+	data, err := trackingService.AddLocation(tracking, claims["userid"].(string))
 	if err != nil {
 		trestCommon.ECLog1(errors.Wrapf(err, "unable to set tracking"))
 
@@ -88,7 +87,7 @@ func UpdateTracking(w http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(w).Encode(bson.M{"status": false, "error": "authorization failed"})
 		return
 	}
-	_, err := trestCommon.DecodeToken(tokenString[1])
+	claims, err := trestCommon.DecodeToken(tokenString[1])
 	if err != nil {
 		trestCommon.ECLog1(errors.Wrapf(err, "failed to authenticate token"))
 		w.WriteHeader(http.StatusUnauthorized)
@@ -111,7 +110,7 @@ func UpdateTracking(w http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(w).Encode(bson.M{"status": false, "error": "Unable to update tracking location"})
 		return
 	}
-	data, err := trackingService.UpdateLocation(tracking, trackingID)
+	data, err := trackingService.UpdateLocation(tracking, claims["userid"].(string))
 	if err != nil {
 		trestCommon.ECLog1(errors.Wrapf(err, "unable to update tracking location"))
 

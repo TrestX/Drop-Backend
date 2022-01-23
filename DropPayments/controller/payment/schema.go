@@ -1,16 +1,18 @@
 package payment
 
 import (
-	entity "Drop/DropPayments/entities"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
+
+	entity "Drop/DropPayments/entities"
+
 )
 
 type PaymentService interface {
 	CreatePaymentIntent(userId, token string, payments PaymentIntentSchema) (string, string, error)
 	UpdatePaymentStatus(userId, paymentId, status string) (string, error)
-	UpdatePaymentStatusSuccess(userId, paymentId string) (string, error)
+	UpdatePaymentStatusSuccess(paymentId string) (string, error)
 	GetPaymentsDetails(userId, status string, limit, skip int) ([]entity.PaymentEntityDB, error)
 	GetPaymentDetails(userId, paymentId string) (entity.PaymentEntityDB, error)
 	GetPaymentWithIDs(paymentIds []string) ([]entity.PaymentEntityDB, error)
