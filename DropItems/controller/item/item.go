@@ -212,13 +212,42 @@ func (*itemService) GetItemWithIDs(itemIds []string) ([]entity.ItemDB, error) {
 func (*itemService) GetFeaturedItem(shopID, category, shopType string, limit, skip int) ([]entity.ItemDB, error) {
 	filter := bson.M{"featured_app": true}
 	if category != "" {
-		filter["category"] = category
+		if strings.Contains(category, ",") {
+			l := strings.Split(category, ",")
+			subFilter := bson.A{}
+			for i := 0; i < len(l); i++ {
+				subFilter = append(subFilter, bson.M{"category": bson.M{"$regex": l[i], "$options": "i"}})
+			}
+			filter = bson.M{"$or": subFilter}
+		} else {
+			filter["category"] = category
+		}
+
 	}
 	if shopType != "" {
-		filter["shop_type"] = shopType
+		if strings.Contains(shopType, ",") {
+			l := strings.Split(shopType, ",")
+			subFilter := bson.A{}
+			for i := 0; i < len(l); i++ {
+				subFilter = append(subFilter, bson.M{"shop_type": bson.M{"$regex": l[i], "$options": "i"}})
+			}
+			filter = bson.M{"$or": subFilter}
+		} else {
+			filter["shop_type"] = shopType
+		}
+
 	}
 	if shopID != "" {
-		filter["shop_id"] = shopID
+		if strings.Contains(shopID, ",") {
+			l := strings.Split(shopID, ",")
+			subFilter := bson.A{}
+			for i := 0; i < len(l); i++ {
+				subFilter = append(subFilter, bson.M{"shop_id": bson.M{"$regex": l[i], "$options": "i"}})
+			}
+			filter = bson.M{"$or": subFilter}
+		} else {
+			filter["shop_id"] = shopID
+		}
 	}
 	item, err := repo.Find(filter, bson.M{}, limit, skip)
 	if err != nil {
@@ -233,13 +262,42 @@ func (*itemService) GetFeaturedItem(shopID, category, shopType string, limit, sk
 func (*itemService) GetShopFeaturedItem(shopID, category, shopType string, limit, skip int) ([]entity.ItemDB, error) {
 	filter := bson.M{"featured": true}
 	if category != "" {
-		filter["category"] = category
+		if strings.Contains(category, ",") {
+			l := strings.Split(category, ",")
+			subFilter := bson.A{}
+			for i := 0; i < len(l); i++ {
+				subFilter = append(subFilter, bson.M{"category": bson.M{"$regex": l[i], "$options": "i"}})
+			}
+			filter = bson.M{"$or": subFilter}
+		} else {
+			filter["category"] = category
+		}
+
 	}
 	if shopType != "" {
-		filter["shop_type"] = shopType
+		if strings.Contains(shopType, ",") {
+			l := strings.Split(shopType, ",")
+			subFilter := bson.A{}
+			for i := 0; i < len(l); i++ {
+				subFilter = append(subFilter, bson.M{"shop_type": bson.M{"$regex": l[i], "$options": "i"}})
+			}
+			filter = bson.M{"$or": subFilter}
+		} else {
+			filter["shop_type"] = shopType
+		}
+
 	}
 	if shopID != "" {
-		filter["shop_id"] = shopID
+		if strings.Contains(shopID, ",") {
+			l := strings.Split(shopID, ",")
+			subFilter := bson.A{}
+			for i := 0; i < len(l); i++ {
+				subFilter = append(subFilter, bson.M{"shop_id": bson.M{"$regex": l[i], "$options": "i"}})
+			}
+			filter = bson.M{"$or": subFilter}
+		} else {
+			filter["shop_id"] = shopID
+		}
 	}
 	item, err := repo.Find(filter, bson.M{}, limit, skip)
 	if err != nil {
@@ -255,13 +313,42 @@ func (*itemService) GetShopFeaturedItem(shopID, category, shopType string, limit
 func (*itemService) GetPopularItem(shopID, category, shopType string, limit, skip int) ([]entity.ItemDB, error) {
 	filter := bson.M{}
 	if category != "" {
-		filter["category"] = category
+		if strings.Contains(category, ",") {
+			l := strings.Split(category, ",")
+			subFilter := bson.A{}
+			for i := 0; i < len(l); i++ {
+				subFilter = append(subFilter, bson.M{"category": bson.M{"$regex": l[i], "$options": "i"}})
+			}
+			filter = bson.M{"$or": subFilter}
+		} else {
+			filter["category"] = category
+		}
+
 	}
 	if shopType != "" {
-		filter["shop_type"] = shopType
+		if strings.Contains(shopType, ",") {
+			l := strings.Split(shopType, ",")
+			subFilter := bson.A{}
+			for i := 0; i < len(l); i++ {
+				subFilter = append(subFilter, bson.M{"shop_type": bson.M{"$regex": l[i], "$options": "i"}})
+			}
+			filter = bson.M{"$or": subFilter}
+		} else {
+			filter["shop_type"] = shopType
+		}
+
 	}
 	if shopID != "" {
-		filter["shop_id"] = shopID
+		if strings.Contains(shopID, ",") {
+			l := strings.Split(shopID, ",")
+			subFilter := bson.A{}
+			for i := 0; i < len(l); i++ {
+				subFilter = append(subFilter, bson.M{"shop_id": bson.M{"$regex": l[i], "$options": "i"}})
+			}
+			filter = bson.M{"$or": subFilter}
+		} else {
+			filter["shop_id"] = shopID
+		}
 	}
 	item, err := repo.Find(filter, bson.M{}, limit, skip)
 	if err != nil {
@@ -281,13 +368,42 @@ func (*itemService) GetPopularItem(shopID, category, shopType string, limit, ski
 func (*itemService) GetTopRatedItems(shopID, category, shopType string, limit, skip int) ([]entity.ItemDB, error) {
 	filter := bson.M{}
 	if category != "" {
-		filter["category"] = category
+		if strings.Contains(category, ",") {
+			l := strings.Split(category, ",")
+			subFilter := bson.A{}
+			for i := 0; i < len(l); i++ {
+				subFilter = append(subFilter, bson.M{"category": bson.M{"$regex": l[i], "$options": "i"}})
+			}
+			filter = bson.M{"$or": subFilter}
+		} else {
+			filter["category"] = category
+		}
+
 	}
 	if shopType != "" {
-		filter["shop_type"] = shopType
+		if strings.Contains(shopType, ",") {
+			l := strings.Split(shopType, ",")
+			subFilter := bson.A{}
+			for i := 0; i < len(l); i++ {
+				subFilter = append(subFilter, bson.M{"shop_type": bson.M{"$regex": l[i], "$options": "i"}})
+			}
+			filter = bson.M{"$or": subFilter}
+		} else {
+			filter["shop_type"] = shopType
+		}
+
 	}
 	if shopID != "" {
-		filter["shop_id"] = shopID
+		if strings.Contains(shopID, ",") {
+			l := strings.Split(shopID, ",")
+			subFilter := bson.A{}
+			for i := 0; i < len(l); i++ {
+				subFilter = append(subFilter, bson.M{"shop_id": bson.M{"$regex": l[i], "$options": "i"}})
+			}
+			filter = bson.M{"$or": subFilter}
+		} else {
+			filter["shop_id"] = shopID
+		}
 	}
 	item, err := repo.Find(filter, bson.M{}, limit, skip)
 	if err != nil {
@@ -299,25 +415,93 @@ func (*itemService) GetTopRatedItems(shopID, category, shopType string, limit, s
 	}
 	return item, nil
 }
-func (*itemService) GetItemCategoryStructured(shopID, category, name, typee, sellerId, search, featured, shoptype string, limit, skip int) (map[string][]interface{}, error) {
+func (*itemService) GetItemCategoryStructured(shopID, category, deal, name, typee, sellerId, search, featured, shoptype string, limit, skip int) (map[string][]interface{}, error) {
 	filter := bson.M{}
+	if deal != "" {
+		if strings.Contains(deal, ",") {
+			l := strings.Split(deal, ",")
+			subFilter := bson.A{}
+			for i := 0; i < len(l); i++ {
+				subFilter = append(subFilter, bson.M{"deal": bson.M{"$regex": l[i], "$options": "i"}})
+			}
+			filter = bson.M{"$or": subFilter}
+		} else {
+			filter["deal"] = bson.M{"$regex": deal, "$options": "i"}
+		}
+	}
 	if category != "" {
-		filter["category"] = category
-	}
-	if name != "" {
-		filter["name"] = name
-	}
-	if sellerId != "" {
-		filter["seller_id"] = sellerId
-	}
-	if shopID != "" {
-		filter["shop_id"] = shopID
+		if strings.Contains(category, ",") {
+			l := strings.Split(category, ",")
+			subFilter := bson.A{}
+			for i := 0; i < len(l); i++ {
+				subFilter = append(subFilter, bson.M{"category": bson.M{"$regex": l[i], "$options": "i"}})
+			}
+			filter = bson.M{"$or": subFilter}
+		} else {
+			filter["category"] = category
+		}
 	}
 	if shoptype != "" {
-		filter["shop_type"] = shoptype
+		if strings.Contains(shoptype, ",") {
+			l := strings.Split(shoptype, ",")
+			subFilter := bson.A{}
+			for i := 0; i < len(l); i++ {
+				subFilter = append(subFilter, bson.M{"shop_type": bson.M{"$regex": l[i], "$options": "i"}})
+			}
+			filter = bson.M{"$or": subFilter}
+		} else {
+			filter["shop_type"] = shoptype
+		}
+
+	}
+	if shopID != "" {
+		if strings.Contains(shopID, ",") {
+			l := strings.Split(shopID, ",")
+			subFilter := bson.A{}
+			for i := 0; i < len(l); i++ {
+				subFilter = append(subFilter, bson.M{"shop_id": bson.M{"$regex": l[i], "$options": "i"}})
+			}
+			filter = bson.M{"$or": subFilter}
+		} else {
+			filter["shop_id"] = shopID
+		}
+	}
+	if name != "" {
+		if strings.Contains(name, ",") {
+			l := strings.Split(name, ",")
+			subFilter := bson.A{}
+			for i := 0; i < len(l); i++ {
+				subFilter = append(subFilter, bson.M{"name": bson.M{"$regex": l[i], "$options": "i"}})
+			}
+			filter = bson.M{"$or": subFilter}
+		} else {
+			filter["name"] = name
+		}
+	}
+	if sellerId != "" {
+		if strings.Contains(sellerId, ",") {
+			l := strings.Split(sellerId, ",")
+			subFilter := bson.A{}
+			for i := 0; i < len(l); i++ {
+				subFilter = append(subFilter, bson.M{"seller_id": bson.M{"$regex": l[i], "$options": "i"}})
+			}
+			filter = bson.M{"$or": subFilter}
+		} else {
+			filter["seller_id"] = sellerId
+		}
+
 	}
 	if typee != "" {
-		filter["type"] = typee
+		if strings.Contains(typee, ",") {
+			l := strings.Split(typee, ",")
+			subFilter := bson.A{}
+			for i := 0; i < len(l); i++ {
+				subFilter = append(subFilter, bson.M{"type": bson.M{"$regex": l[i], "$options": "i"}})
+			}
+			filter = bson.M{"$or": subFilter}
+		} else {
+			filter["type"] = typee
+		}
 	}
 	if featured == "1" {
 		filter["featured"] = true
@@ -328,21 +512,16 @@ func (*itemService) GetItemCategoryStructured(shopID, category, name, typee, sel
 			bson.M{"name": bson.M{"$regex": search, "$options": "i"}},
 		}
 	}
-	filter1 := bson.M{}
-	if shoptype != "" {
-		filter1["shop_type"] = shoptype
-	}
-	if shopID != "" {
-		filter1["shop_id"] = shopID
-	}
-	pitem, _ := repo.Find(filter1, bson.M{}, limit, skip)
-	rand.Seed(time.Now().UnixNano())
-	rand.Shuffle(len(pitem), func(i, j int) {
-		pitem[i], pitem[j] = pitem[j], pitem[i]
-	})
 
 	op := make(map[string][]interface{})
 	item, err := repo.Find(filter, bson.M{}, limit, skip)
+	var shopIds []string
+	var ratingReview []string
+	for i := 0; i < len(item); i++ {
+		shopIds = append(shopIds, item[i].ShopID)
+		ratingReview = append(ratingReview, item[i].ID.Hex())
+	}
+	shopDetails, _ := api.GetShopDetailsByIDs(shopIds)
 	for i := 0; i < len(item); i++ {
 		newdownloadurl := createPreSignedDownloadUrl(item[i].Images[0])
 		item[i].Images[0] = newdownloadurl
@@ -350,10 +529,16 @@ func (*itemService) GetItemCategoryStructured(shopID, category, name, typee, sel
 			var l = op[item[i].Category]
 			var stru UOPStruct
 			stru.Item = item[i]
-			newtoken, _ := trestCommon.CreateToken(item[i].SellerID, "", "", "")
-
-			shopDetails, _ := api.GetShopDetails(item[i].ShopID, newtoken)
-			stru.Shop = shopDetails
+			for _, shopDetail := range shopDetails {
+				if shopDetail.ID.Hex() == item[i].ShopID {
+					newdownloadurl := createPreSignedDownloadUrl(shopDetail.ShopLogo)
+					shopDetail.ShopLogo = newdownloadurl
+					newdownloadurl = createPreSignedDownloadUrl(shopDetail.ShopBanner)
+					shopDetail.ShopBanner = newdownloadurl
+					stru.Shop = shopDetail
+					break
+				}
+			}
 			review, _ := api.GetOrderReview(item[i].ID.Hex(), " ")
 			arview := 0
 
@@ -375,9 +560,16 @@ func (*itemService) GetItemCategoryStructured(shopID, category, name, typee, sel
 			var l []interface{}
 			var stru UOPStruct
 			stru.Item = item[i]
-			newtoken, _ := trestCommon.CreateToken(item[i].SellerID, "", "", "")
-			shopDetails, _ := api.GetShopDetails(item[i].ShopID, newtoken)
-			stru.Shop = shopDetails
+			for _, shopDetail := range shopDetails {
+				if shopDetail.ID.Hex() == item[i].ShopID {
+					newdownloadurl := createPreSignedDownloadUrl(shopDetail.ShopLogo)
+					shopDetail.ShopLogo = newdownloadurl
+					newdownloadurl = createPreSignedDownloadUrl(shopDetail.ShopBanner)
+					shopDetail.ShopBanner = newdownloadurl
+					stru.Shop = shopDetail
+					break
+				}
+			}
 			review, _ := api.GetOrderReview(item[i].ID.Hex(), " ")
 			arview := 0
 			if len(review) > 0 {

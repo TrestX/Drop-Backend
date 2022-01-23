@@ -14,4 +14,5 @@ type ShopRepository interface {
 	FindWithIDs(filter, projection bson.M) ([]entity.ShopDB, error)
 	UpdateOne(filter, update bson.M) (string, error)
 	DeleteOne(filter bson.M) error
+	FindOneSetting(filter, projection bson.M) (entity.SettingDB, error)
 }

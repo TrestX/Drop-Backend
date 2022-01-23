@@ -3,6 +3,7 @@ package api
 import (
 	entity "Drop/DropItems/entities"
 	"encoding/json"
+	"strings"
 
 	"github.com/aekam27/trestCommon"
 	"github.com/spf13/viper"
@@ -37,6 +38,40 @@ func GetShopDetails(shopId, token string) (entity.ShopDB, error) {
 		return shop, err
 	}
 	var response ShopResponse
+	err = json.Unmarshal(body, &response)
+	return response.Data, err
+}
+
+type ShopIdsResponse struct {
+	Status bool
+	Data   []entity.ShopDB
+}
+
+func GetShopDetailsByIDs(shopIds []string) ([]entity.ShopDB, error) {
+	var users []entity.ShopDB
+	url := viper.GetString("api.getshopbyidsurl") + strings.Join(shopIds, ",")
+	body, err := trestCommon.GetApi(" ", url)
+	if err != nil {
+		return users, err
+	}
+	var response ShopIdsResponse
+	err = json.Unmarshal(body, &response)
+	return response.Data, err
+}
+
+type RatingReviewIdsResponse struct {
+	Status bool
+	Data   []entity.RatingReviewDB
+}
+
+func GetRatingDetailsByIDs(ratingIds []string) ([]entity.RatingReviewDB, error) {
+	var users []entity.RatingReviewDB
+	url := viper.GetString("api.getratingbyidsurl") + strings.Join(ratingIds, ",")
+	body, err := trestCommon.GetApi(" ", url)
+	if err != nil {
+		return users, err
+	}
+	var response RatingReviewIdsResponse
 	err = json.Unmarshal(body, &response)
 	return response.Data, err
 }

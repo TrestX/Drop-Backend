@@ -146,20 +146,25 @@ func (*appwalletService) GetTransactions(transactionId, status, entity, entityid
 	return repo.Find(filter, bson.M{}, limit, skip)
 }
 
-func (*appwalletService) GetDeliveryPersonBalance(transactionId, status, entityid, orderid, token, fromD, endD string, limit, skip int) ([]entity.AppWallet, int64, int64, int64, int64, int64, int64, error) {
+func (*appwalletService) GetDeliveryPersonBalance(transactionId, status, entityid, orderid, token, fromD, endD, typeD string, limit, skip int) ([]entity.AppWallet, int64, int64, int64, int64, int64, int64, float64, string, error) {
 	filter := bson.M{}
+	filter2 := bson.M{}
 	if status != "" {
 		filter["status"] = status
+		filter2["status"] = status
 	}
 	if orderid != "" {
 		filter["order_id"] = orderid
+		filter2["order_id"] = orderid
 	}
 	if entityid != "" {
 		filter["delivery_id"] = entityid
+		filter2["delivery_id"] = entityid
 	}
 	if transactionId != "" {
 		id, _ := primitive.ObjectIDFromHex(transactionId)
 		filter["_id"] = id
+		filter2["_id"] = id
 	}
 	dF := bson.M{}
 	layout := "2006-01-02T15:04:05.000Z"
@@ -173,9 +178,42 @@ func (*appwalletService) GetDeliveryPersonBalance(transactionId, status, entityi
 		dF["$lt"] = t
 		filter["added_time"] = dF
 	}
+	dF2 := bson.M{}
+	dF3 := bson.M{}
+	if typeD != "" {
+		if typeD == "Today" {
+			dF2["$lt"] = time.Now().AddDate(0, 0, -1)
+			dF2["$gt"] = time.Now().AddDate(0, 0, -2)
+			dF3["$lt"] = time.Now().AddDate(0, 0, 1)
+			dF3["$gt"] = time.Now().AddDate(0, 0, -1)
+			filter2["added_time"] = dF2
+			filter["added_time"] = dF3
+		}
+		if typeD == "Week" {
+			dF2["$lt"] = time.Now()
+			dF2["$gt"] = time.Now().AddDate(0, 0, -10)
+			dF3["$lt"] = time.Now().AddDate(0, 0, 10)
+			dF3["$gt"] = time.Now().AddDate(0, 0, -1)
+			filter2["added_time"] = dF2
+			filter["added_time"] = dF3
+		}
+		if typeD == "Month" {
+			dF2["$lt"] = time.Now()
+			dF2["$gt"] = time.Now().AddDate(0, -2, -7)
+			dF3["$lt"] = time.Now().AddDate(0, 1, 0)
+			dF3["$gt"] = time.Now().AddDate(0, -1, 0)
+			filter2["added_time"] = dF2
+			filter["added_time"] = dF3
+		}
+	}
+	ptransactions, _ := repo.Find(filter2, bson.M{}, limit, skip)
+	var ptotal int64
+	for i := 0; i < len(ptransactions); i++ {
+		ptotal = ptotal + ptransactions[i].DeliveryPersonCut + ptransactions[i].TipAmount
+	}
 	transactions, err := repo.Find(filter, bson.M{}, limit, skip)
 	if err != nil {
-		return []entity.AppWallet{}, 0, 0, 0, 0, 0, 0, err
+		return []entity.AppWallet{}, 0, 0, 0, 0, 0, 0, 0.0, "", err
 	}
 	var total int64
 	var settled int64
@@ -183,6 +221,9 @@ func (*appwalletService) GetDeliveryPersonBalance(transactionId, status, entityi
 	var totaltip int64
 	var settledtip int64
 	var unsettledtip int64
+	var earningdiff float64
+	var difftyp string
+
 	for i := 0; i < len(transactions); i++ {
 		apii, _ := api.GetOrder(transactions[i].OrderId, token)
 		paymemnt, err := api.GetPaymentByIds([]string{apii.PaymentID})
@@ -204,7 +245,14 @@ func (*appwalletService) GetDeliveryPersonBalance(transactionId, status, entityi
 		total = total + transactions[i].DeliveryPersonCut
 		totaltip = totaltip + transactions[i].TipAmount
 	}
-	return transactions, total, settled, unsettled, totaltip, settledtip, unsettledtip, nil
+	if ptotal > total {
+		earningdiff = float64(float64(ptotal-total)/float64((ptotal+total)/2)) * float64(100)
+		difftyp = "-"
+	} else {
+		earningdiff = float64(float64(total-ptotal)/float64((ptotal+total)/2)) * float64(100)
+		difftyp = "+"
+	}
+	return transactions, total, settled, unsettled, totaltip, settledtip, unsettledtip, earningdiff, difftyp, nil
 }
 
 func (*appwalletService) GetSellerPersonBalance(transactionId, status, entityid, orderid, fromD, endD string, limit, skip int) ([]entity.AppWallet, int64, int64, int64, error) {

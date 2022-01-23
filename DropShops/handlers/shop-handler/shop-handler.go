@@ -448,8 +448,29 @@ func GetShopAdmin(w http.ResponseWriter, r *http.Request) {
 	statusS := r.URL.Query().Get("status")
 	featuredS := r.URL.Query().Get("featured")
 	dealS := r.URL.Query().Get("deal")
+	rating := r.URL.Query().Get("rating")
+	priceu := r.URL.Query().Get("lowerprice")
+	pricel := r.URL.Query().Get("upperprice")
+	lowest := r.URL.Query().Get("lowestDP")
+	lat := 0.0
+	long := 0.0
+
 	if statusS != "" {
 		status = statusS
+	}
+	if r.URL.Query().Get("lat") != "" {
+		latt, err := strconv.Atoi(r.URL.Query().Get("lat"))
+		lat = float64(latt)
+		if err != nil {
+			lat = 0.0
+		}
+	}
+	if r.URL.Query().Get("long") != "" {
+		longg, err := strconv.Atoi(r.URL.Query().Get("long"))
+		long = float64(longg)
+		if err != nil {
+			long = 0.0
+		}
 	}
 	if limitS != "" {
 		limit, err = strconv.Atoi(limitS)
@@ -475,7 +496,7 @@ func GetShopAdmin(w http.ResponseWriter, r *http.Request) {
 	if featuredS != "" {
 		featured = featuredS
 	}
-	data, err := shopService.GetShopAdmin(limit, skip, sellerId, sType, status, featured, deal)
+	data, err := shopService.GetShopAdmin(limit, skip, sellerId, sType, status, featured, deal, rating, priceu, pricel, lowest, lat, long)
 	if err != nil {
 		trestCommon.ECLog1(errors.Wrapf(err, "unable to get shop"))
 
