@@ -24,6 +24,7 @@ type Address struct {
 	Longitude float64 `bson:"longitude" json:"longitude,omitempty"`
 	Latitude  float64 `bson:"latitude" json:"latitude,omitempty"`
 	Type      string  `bson:"type" json:"type,omitempty"`
+	Note      string  `bson:"note" json:"note,omitempty"`
 }
 
 type OP struct {
@@ -39,4 +40,5 @@ type OP struct {
 	Longitude float64 `bson:"longitude" json:"longitude,omitempty"`
 	Latitude  float64 `bson:"latitude" json:"latitude,omitempty"`
 	Type      string  `bson:"type" json:"type,omitempty"`
+	Note      string  `bson:"note" json:"note,omitempty"`
 }

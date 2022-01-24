@@ -64,6 +64,8 @@ func (r *orderService) PlaceOrder(userId, token string, order Order) (AdminOrder
 	shopAddress.Country = shopDetails.Country
 	shopAddress.Pin = shopDetails.Pin
 	shopAddress.State = shopDetails.State
+	statusL := entity.OrderStatus{"Ordered", time.Now()}
+	orderEntity.OrderStatusList = []entity.OrderStatus{statusL}
 	shopAddress.GeoLocation = shopDetails.GeoLocation
 	deliveryEntity.ShopAddress = shopAddress
 	userAddress, err := getAddressDetails(order.UserAddressID, token)
@@ -461,6 +463,7 @@ func (*orderService) GetAdminOrders(token string, limit, skip int, shopID, selle
 		orderOp.TipAmount = orders[j].TipAmount
 		orderOp.AcceptedAt = orders[j].OrderAcceptedTime
 		orderOp.DeliveredTime = orders[j].DeliveredTime
+		orderOp.OrderStatusList = orders[j].OrderStatusList
 		orderOp.OrderPickeUpTime = orders[j].OrderPickUpTime
 		orderOp.OrderStatus = orders[j].Status
 		orderOp.PaymentAmount = payments[j].Amount

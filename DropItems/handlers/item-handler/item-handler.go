@@ -585,7 +585,8 @@ func GetItemStruc(w http.ResponseWriter, r *http.Request) {
 		stypee = stypeeS
 	}
 	deal := r.URL.Query().Get("deal")
-	data, err := itemService.GetItemCategoryStructured(shopID, category, deal, name, typee, sellerId, search, featured, stypee, limit, skip)
+	popular := r.URL.Query().Get("popular")
+	data, err := itemService.GetItemCategoryStructured(shopID, popular, category, deal, name, typee, sellerId, search, featured, stypee, limit, skip)
 	if err != nil {
 		trestCommon.ECLog1(errors.Wrapf(err, "unable to get item"))
 

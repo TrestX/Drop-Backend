@@ -18,7 +18,7 @@ type ShopService interface {
 	GetShopUsingID(shopId string, sellerId string) (entity.ShopDB, error)
 	GetFeaturedShop(limit, skip int) ([]entity.ShopDB, error)
 	SearchShopByType(typ string, limit, skip int) ([]entity.ShopDB, error)
-	GetShopAdmin(limit, skip int, sellerId, sType, status, featured, deal, rating, priceu, pricel, lowest string, lat, long float64) ([]OpSchema, error)
+	GetShopAdmin(limit, skip int, sellerId, sType, status, featured, deal, rating, priceu, pricel, lowest, pickup string, lat, long float64) ([]OpSchema, error)
 	GetNearestShopAdmin(limit, skip int, sellerId, sType, status string, lat, long float64) ([]OpSchema, error)
 	GetTopRatedShopAdmin(limit, skip int, sellerId, sType, status string) ([]OpSchema, error)
 	GetAdminUsersWithIDs(userIds []string) ([]entity.ShopDB, error)
@@ -50,6 +50,7 @@ type Shop struct {
 	Rating          float64  `bson:"rating" json:"rating,omitempty"`
 	NumbofRating    int64    `bson:"nrating" json:"nrating,omitempty"`
 	MinOrderAmount  int64    `bson:"minorderamount" json:"minorderamount"`
+	Pickup          bool     `bson:"pickup" json:"pickup,omitempty"`
 }
 
 type OpSchema struct {
@@ -80,4 +81,5 @@ type OpSchema struct {
 	DeliveryType    string             `bson:"delivery" json:"delivery,omitempty"`
 	Cuisine         string             `bson:"cuisine" json:"cuisine,omitempty"`
 	MinOrderAmount  int64              `bson:"minorderamount" json:"minorderamount"`
+	Pickup          bool               `bson:"pickup" json:"pickup,omitempty"`
 }

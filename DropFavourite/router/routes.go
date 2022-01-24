@@ -30,6 +30,12 @@ var routes = Routes{
 	},
 	Route{
 		"favourite",
+		"GET",
+		"/favourite/shops",
+		favouriteHandler.GetFavouriteShops,
+	},
+	Route{
+		"favourite",
 		"Delete",
 		"/favourite/{itemId}",
 		favouriteHandler.DeleteFavourite,

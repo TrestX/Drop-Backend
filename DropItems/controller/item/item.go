@@ -415,7 +415,7 @@ func (*itemService) GetTopRatedItems(shopID, category, shopType string, limit, s
 	}
 	return item, nil
 }
-func (*itemService) GetItemCategoryStructured(shopID, category, deal, name, typee, sellerId, search, featured, shoptype string, limit, skip int) (map[string][]interface{}, error) {
+func (*itemService) GetItemCategoryStructured(shopID, popular, category, deal, name, typee, sellerId, search, featured, shoptype string, limit, skip int) (map[string][]interface{}, error) {
 	filter := bson.M{}
 	if deal != "" {
 		if strings.Contains(deal, ",") {
@@ -541,7 +541,6 @@ func (*itemService) GetItemCategoryStructured(shopID, category, deal, name, type
 			}
 			review, _ := api.GetOrderReview(item[i].ID.Hex(), " ")
 			arview := 0
-
 			if len(review) > 0 {
 				rview := 0
 				for k := 0; k < len(review); k++ {
@@ -596,6 +595,7 @@ func (*itemService) GetItemCategoryStructured(shopID, category, deal, name, type
 		)
 		return op, err
 	}
+
 	return op, nil
 }
 func createPreSignedDownloadUrl(url string) string {

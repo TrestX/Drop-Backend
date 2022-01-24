@@ -496,7 +496,8 @@ func GetShopAdmin(w http.ResponseWriter, r *http.Request) {
 	if featuredS != "" {
 		featured = featuredS
 	}
-	data, err := shopService.GetShopAdmin(limit, skip, sellerId, sType, status, featured, deal, rating, priceu, pricel, lowest, lat, long)
+	pickup := r.URL.Query().Get("pickup")
+	data, err := shopService.GetShopAdmin(limit, skip, sellerId, sType, status, featured, deal, rating, priceu, pricel, lowest, pickup, lat, long)
 	if err != nil {
 		trestCommon.ECLog1(errors.Wrapf(err, "unable to get shop"))
 

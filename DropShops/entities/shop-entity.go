@@ -46,6 +46,7 @@ type ShopDB struct {
 	Tags            string             `bson:"tags" json:"tags,omitempty"`
 	Rating          float64            `bson:"rating" json:"rating,omitempty"`
 	MinOrderAmount  int64              `bson:"minorderamount" json:"minorderamount"`
+	Pickup          bool               `bson:"pickup" json:"pickup,omitempty"`
 }
 
 type UserDB struct {

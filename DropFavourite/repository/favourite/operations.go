@@ -1,7 +1,6 @@
 package favourite
 
 import (
-	"Drop/DropFavourite/api"
 	entity "Drop/DropFavourite/entities"
 	"context"
 	"errors"
@@ -86,7 +85,7 @@ func (r *repo) FindOne(filter, projection bson.M) (entity.FavouriteDB, error) {
 }
 
 //not used may use in future for gettin list of favourite
-func (r *repo) Find(filter, projection bson.M, limit, skip int) ([]entity.ItemDB, error) {
+func (r *repo) Find(filter, projection bson.M, limit, skip int) ([]string, error) {
 	var favourites []string
 	cursor, err := trestCommon.FindWithLimitAndOffSet(filter, projection, limit, skip, r.CollectionName)
 	if err != nil {
@@ -115,7 +114,7 @@ func (r *repo) Find(filter, projection bson.M, limit, skip int) ([]entity.ItemDB
 		}
 		favourites = append(favourites, favourite.ItemID)
 	}
-	return api.GetItems(favourites)
+	return favourites, nil
 }
 
 //not using
