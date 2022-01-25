@@ -25,3 +25,20 @@ func GetItems(items []string) ([]entity.ItemDB, error) {
 	err = json.Unmarshal(body, &response)
 	return response.Data, err
 }
+
+type ShopIdsResponse struct {
+	Status bool
+	Data   []entity.ShopDB
+}
+
+func GetShopDetailsByIDs(shopIds []string) ([]entity.ShopDB, error) {
+	var users []entity.ShopDB
+	url := viper.GetString("api.getshopbyidsurl") + strings.Join(shopIds, ",")
+	body, err := trestCommon.GetApi(" ", url)
+	if err != nil {
+		return users, err
+	}
+	var response ShopIdsResponse
+	err = json.Unmarshal(body, &response)
+	return response.Data, err
+}

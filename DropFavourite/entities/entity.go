@@ -3,6 +3,7 @@ package entity
 import (
 	"time"
 
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -12,18 +13,64 @@ type FavouriteDB struct {
 	ItemID    string             `bson:"item_id" json:"item_id,omitempty"`
 	AddedTime time.Time          `bson:"added_time" json:"added_time,omitempty"`
 }
+type Optname struct {
+	Name  string  `bson:"name" json:"name"`
+	Price float64 `bson:"price" json:"price"`
+}
+type Choices struct {
+	Name    string    `bson:"name" json:"name"`
+	Options []Optname `bson:"options" json:"options"`
+}
+type ItemAdOn struct {
+	ID    primitive.ObjectID `bson:"_id" json:"item"`
+	Name  string             `bson:"name" json:"name"`
+	Price int64              `bson:"price" json:"price"`
+	Note  string             `bson:"note" json:"note"`
+}
 type ItemDB struct {
-	ID          primitive.ObjectID `bson:"_id" json:"item,omitempty"`
-	UserID      string             `bson:"user_id" json:"user_id,omitempty"`
-	SellerID    string             `bson:"seller_id" json:"seller_id,omitempty"`
-	Category    string             `bson:"category" json:"category,omitempty"`
-	SubCategory string             `bson:"sub_category" json:"sub_category,omitempty"`
-	Title       string             `bson:"title" json:"title,omitempty"`
-	SubTitle    string             `bson:"sub_title" json:"sub_title,omitempty"`
-	Description string             `bson:"description" json:"description,omitempty"`
-	Approved    bool               `bson:"approved" json:"approved,omitempty"`
-	Rejected    bool               `bson:"rejected" json:"rejected,omitempty"`
-	Images      []string           `bson:"images" json:"images,omitempty"`
-	CreatedTime time.Time          `bson:"created_time" json:"created_time,omitempty"`
-	UpdatedTime time.Time          `bson:"updated_time" json:"updated_time,omitempty"`
+	ID          primitive.ObjectID `bson:"_id" json:"item"`
+	SellerID    string             `bson:"seller_id" json:"seller_id"`
+	ShopID      string             `bson:"shop_id" json:"shop_id"`
+	Category    string             `bson:"category" json:"category"`
+	Name        string             `bson:"name" json:"name"`
+	Description string             `bson:"description" json:"description"`
+	Approved    bool               `bson:"approved" json:"approved"`
+	Rejected    bool               `bson:"rejected" json:"rejected"`
+	ShopType    string             `bson:"shop_type" json:"shop_type"`
+	Images      []string           `bson:"images" json:"images"`
+	AddOns      []ItemAdOn         `bson:"add_ons" json:"add_ons"`
+	Quantity    int64              `bson:"quantity" json:"quantity"`
+	Featured    bool               `bson:"featured" json:"featured"`
+	FeaturedApp bool               `bson:"featured_app" json:"featured_app"`
+	Price       int64              `bson:"price" json:"price"`
+	Type        string             `bson:"type" json:"type"`
+	CreatedTime time.Time          `bson:"created_time" json:"created_time"`
+	UpdatedTime time.Time          `bson:"updated_time" json:"updated_time"`
+	Deal        string             `bson:"deal" json:"deal"`
+	Sizes       []Optname          `bson:"sizes" json:"sizes"`
+	Matrix      string             `bson:"matrix" json:"matrix"`
+	Choices     []Choices          `bson:"choices" json:"choices"`
+}
+
+type ShopDB struct {
+	ID              primitive.ObjectID `bson:"_id" json:"shop_id"`
+	SellerID        string             `bson:"seller_id" json:"seller_id"`
+	Address         string             `bson:"address" json:"address"`
+	Country         string             `bson:"country" json:"country"`
+	State           string             `bson:"state" json:"state"`
+	City            string             `bson:"city" json:"city"`
+	Pin             string             `bson:"pin" json:"pin"`
+	Primary         bool               `bson:"primary" json:"primary"`
+	Type            string             `bson:"type" json:"type"`
+	Timing          string             `bson:"timing" json:"timing"`
+	ShopName        string             `bson:"shop_name" json:"shop_name"`
+	ShopLogo        string             `bson:"shop_logo" json:"shop_logo"`
+	ShopBanner      string             `bson:"shop_banner" json:"shop_banner"`
+	ShopPhotos      []string           `bson:"shop_photos" json:"shop_photos"`
+	ShopStatus      string             `bson:"shop_status" json:"shop_status"`
+	Featured        bool               `bson:"featured" json:"featured"`
+	ShopDescription string             `bson:"shop_description" json:"shop_description"`
+	GeoLocation     bson.M             `bson:"geo_location" json:"geo_location"`
+	CreatedTime     time.Time          `bson:"created_time" json:"created_time"`
+	UpdatedTime     time.Time          `bson:"updated_time" json:"updated_time"`
 }

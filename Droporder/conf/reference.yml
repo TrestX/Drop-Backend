@@ -42,5 +42,6 @@ api:
   getpaymentbyid: "https://api.drop-deliveryapp.com/docker4/payments/"
   getcartbyid: "https://api.drop-deliveryapp.com/docker4/cart"
   getcartbyids: "https://api.drop-deliveryapp.com/docker4/cart/list/"
-  getAppWalletURL: "http://localhost:6039/api/v1/apptrans"
+  getAppWalletURL: "https://api.drop-deliveryapp.com/docker2/apptrans"
   getOrderreviewURL: "https://api.drop-deliveryapp.com/docker3/ratingsReviews"
+  updateShopReview: "https://api.drop-deliveryapp.com/docker1/shop/"

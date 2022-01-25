@@ -64,6 +64,7 @@ func (add *addressService) AddAddress(address *Address, userId string) (string, 
 	addressEntity.Country = address.Country
 	addressEntity.State = address.State
 	addressEntity.Pin = address.Pin
+	addressEntity.Note = address.Note
 	geoLocation := []float64{address.Longitude, address.Latitude}
 	addressEntity.GeoLocation = bson.M{"type": "Point", "coordinates": geoLocation}
 	addressEntity.Primary = address.Primary
@@ -96,6 +97,9 @@ func (*addressService) UpdateAddress(address *Address, addressid string) (string
 
 	if address.Address != "" {
 		setParameters["address"] = address.Address
+	}
+	if address.Note != "" {
+		setParameters["note"] = address.Note
 	}
 	if address.State != "" {
 		setParameters["state"] = address.State

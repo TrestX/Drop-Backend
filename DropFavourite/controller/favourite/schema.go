@@ -6,4 +6,5 @@ type FavouriteService interface {
 	AddFavourite(itemID, userId string) (string, error)
 	DeleteFavourite(itemID, userId string) error
 	GetFavourite(userId string, limit, skip int) ([]entity.ItemDB, error)
+	GetFavouriteShop(userId string, limit, skip int) ([]entity.ShopDB, error)
 }

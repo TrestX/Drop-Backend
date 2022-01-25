@@ -66,6 +66,7 @@ func (add *shopService) AddShop(shop *Shop, sellerId string) (string, error) {
 	shopEntity.Country = shop.Country
 	shopEntity.State = shop.State
 	shopEntity.Pin = shop.Pin
+	shopEntity.Pickup = shop.Pickup
 	geoLocation := []float64{shop.Longitude, shop.Latitude}
 	shopEntity.GeoLocation = bson.M{"type": "Point", "coordinates": geoLocation}
 	shopEntity.Primary = shop.Primary
@@ -481,7 +482,7 @@ func (add *shopService) AddShopAdmin(shop *Shop) (string, error) {
 	return result, nil
 }
 
-func (*shopService) GetShopAdmin(limit, skip int, sellerId, sType, status, featured, deal, rating, priceu, pricel, lowest string, lat, long float64) ([]OpSchema, error) {
+func (*shopService) GetShopAdmin(limit, skip int, sellerId, sType, status, featured, deal, rating, priceu, pricel, lowest, pickup string, lat, long float64) ([]OpSchema, error) {
 	filter := bson.M{}
 	if sellerId != "" {
 		if strings.Contains(sellerId, ",") {
@@ -495,6 +496,9 @@ func (*shopService) GetShopAdmin(limit, skip int, sellerId, sType, status, featu
 			filter["seller_id"] = sellerId
 		}
 
+	}
+	if pickup != "" && pickup == "true" {
+		filter["pickup"] = true
 	}
 	if sType != "" {
 		if strings.Contains(sType, ",") {
@@ -521,16 +525,15 @@ func (*shopService) GetShopAdmin(limit, skip int, sellerId, sType, status, featu
 			l := strings.Split(deal, ",")
 			subFilter := bson.A{}
 			for i := 0; i < len(l); i++ {
-				subFilter = append(subFilter, bson.M{"deal": bson.M{"$regex": "/" + l[i] + "/", "$options": "i"}})
+				subFilter = append(subFilter, bson.M{"deal": bson.M{"$regex": l[i], "$options": "i"}})
 			}
 			filter = bson.M{"$or": subFilter}
 		} else {
-			filter["deal"] = bson.M{"$regex": "/" + deal + "/", "$options": "i"}
+			filter["deal"] = bson.M{"$regex": deal, "$options": "i"}
 		}
 	}
 	if rating != "" {
-		rat, _ := strconv.Atoi(rating)
-		filter["deal"] = bson.M{"$gt": rat}
+		filter["rating"] = bson.M{"$gt": 3.5}
 	}
 	if pricel != "" && priceu != "" {
 		pl, _ := strconv.Atoi(pricel)

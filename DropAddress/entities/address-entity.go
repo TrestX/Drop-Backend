@@ -17,6 +17,7 @@ type AddressDB struct {
 	Pin         string             `bson:"pin" json:"pin,omitempty"`
 	Primary     bool               `bson:"primary" json:"primary,omitempty"`
 	Type        string             `bson:"type" json:"type,omitempty"`
+	Note        string             `bson:"note" json:"note,omitempty"`
 	GeoLocation bson.M             `bson:"geo_location" json:"geo_location,omitempty"`
 	CreatedTime time.Time          `bson:"created_time" json:"created_time,omitempty"`
 	UpdatedTime time.Time          `bson:"updated_time" json:"updated_time,omitempty"`
