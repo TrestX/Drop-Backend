@@ -1,8 +1,9 @@
 package router
 
 import (
-	shopHandler "Drop/DropShop/handlers/shop-handler"
 	"net/http"
+
+	shopHandler "Drop/DropShop/handlers/shop-handler"
 )
 
 type Route struct {
@@ -93,5 +94,17 @@ var routes = Routes{
 		"GET",
 		"/shop/list/{shopIds}",
 		shopHandler.GetShopsWithIDs,
+	},
+	Route{
+		"profile",
+		"GET",
+		"/shop/offer/lists",
+		shopHandler.GetShopAccordingToOffer,
+	},
+	Route{
+		"profile",
+		"GET",
+		"/shop/categories/{category}",
+		shopHandler.GetShopBasedOnCategories,
 	},
 }

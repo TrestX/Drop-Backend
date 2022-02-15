@@ -142,6 +142,13 @@ func (*orderService) UpdateOrder(orderId string, order Order) (string, error) {
 			util.NewNotificationService(notification.NewNotificationRepository("notification")).SendNotificationWithTopic("Order Accepted", "Order has been Accepted by the restaurant", porder.UserID, porder.UserID)
 			set["order_accepted_time"] = time.Now()
 		}
+		if order.Status == "Rejected" {
+			util.NewNotificationService(notification.NewNotificationRepository("notification")).SendNotificationWithTopic("Order Accepted", "Order has been Accepted by the restaurant", porder.UserID, porder.UserID)
+			set["order_rejected_time"] = time.Now()
+			if order.RefundedUsing != "" {
+				set["refunded_using"] = order.RefundedUsing
+			}
+		}
 		if order.Status == "Pickup" {
 			util.NewNotificationService(notification.NewNotificationRepository("notification")).SendNotificationWithTopic("Order is on the way", "Order is on the way", porder.UserID, porder.UserID)
 			set["order_pickup_time"] = time.Now()
@@ -151,6 +158,9 @@ func (*orderService) UpdateOrder(orderId string, order Order) (string, error) {
 			util.NewNotificationService(notification.NewNotificationRepository("notification")).SendNotificationWithTopic("How was your Experience?", "How was your Delivery and Food Experience?", porder.UserID, porder.UserID)
 			set["delivered_time"] = time.Now()
 		}
+	}
+	if order.Refunded {
+		set["refunded"] = order.Refunded
 	}
 	if order.TrackingID != "" {
 		set["delivery_details.tracking_id"] = order.TrackingID
@@ -532,6 +542,27 @@ func (*orderService) GetAdminOrders(token string, limit, skip int, shopID, selle
 		orderOplist = append(orderOplist, orderOp)
 	}
 	return orderOplist, nil
+}
+func (*orderService) GetOrdersCount(userId []string) (map[string]int, error) {
+	filter := bson.A{}
+	for _, user := range userId {
+		filter = append(filter, bson.M{"delivery_details.delivery_id": user})
+	}
+	orders, err := repo.Find(bson.M{"$or": filter}, bson.M{}, 10000000000, 0)
+	if err != nil {
+		trestCommon.ECLog2(
+			"Get Order section",
+			err,
+		)
+	}
+	counts := make(map[string]int)
+	for _, order := range orders {
+		if _, ok := counts[order.DeliveryDetails.DeliveryID]; !ok {
+			counts[order.DeliveryDetails.DeliveryID] = 0
+		}
+		counts[order.DeliveryDetails.DeliveryID]++
+	}
+	return counts, err
 }
 
 func calculateDistance(lat1, lat2, lng1, lng2 float64) float64 {

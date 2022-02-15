@@ -1,11 +1,12 @@
 package shop
 
 import (
-	entity "Drop/DropShop/entities"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+
+	entity "Drop/DropShop/entities"
 )
 
 type ShopService interface {
@@ -18,10 +19,12 @@ type ShopService interface {
 	GetShopUsingID(shopId string, sellerId string) (entity.ShopDB, error)
 	GetFeaturedShop(limit, skip int) ([]entity.ShopDB, error)
 	SearchShopByType(typ string, limit, skip int) ([]entity.ShopDB, error)
-	GetShopAdmin(limit, skip int, sellerId, sType, status, featured, deal, rating, priceu, pricel, lowest, pickup string, lat, long float64) ([]OpSchema, error)
+	GetShopAdmin(limit, skip int, sellerId, sType, status, featured, deal, sortString, priceu, pricel, lowest, pickup string, lat, long float64) ([]OpSchema, error)
 	GetNearestShopAdmin(limit, skip int, sellerId, sType, status string, lat, long float64) ([]OpSchema, error)
 	GetTopRatedShopAdmin(limit, skip int, sellerId, sType, status string) ([]OpSchema, error)
 	GetAdminUsersWithIDs(userIds []string) ([]entity.ShopDB, error)
+	GetShopAccordingToOffer(limit, skip int, lat, long float64) ([]OpSchema, error)
+	GetShopBasedOnCategories(categories string) ([]entity.OutPutCategorySchema, error)
 }
 
 type Shop struct {
@@ -44,13 +47,14 @@ type Shop struct {
 	Type            string   `bson:"type" json:"type,omitempty"`
 	Featured        bool     `bson:"featured" json:"featured,omitempty"`
 	Deal            string   `bson:"deal" json:"deal,omitempty"`
-	DeliveryType    string   `bson:"delivery" json:"delivery,omitempty"`
+	DeliveryType    string   `bson:"delivery_type" json:"delivery_type,omitempty"`
 	Cuisine         string   `bson:"cuisine" json:"cuisine,omitempty"`
 	Tags            string   `bson:"tags" json:"tags,omitempty"`
 	Rating          float64  `bson:"rating" json:"rating,omitempty"`
 	NumbofRating    int64    `bson:"nrating" json:"nrating,omitempty"`
 	MinOrderAmount  int64    `bson:"minorderamount" json:"minorderamount"`
-	Pickup          bool     `bson:"pickup" json:"pickup,omitempty"`
+	Pickup          bool     `bson:"pickup" json:"pickup"`
+	Expensive       int8     `bson:"expensive" json:"expensive"`
 }
 
 type OpSchema struct {
@@ -78,8 +82,9 @@ type OpSchema struct {
 	Rating          float64            `bson:"rating" json:"rating,omitempty"`
 	SellerEmail     string             `json:"sellerEmail,omitempty"`
 	Deal            string             `bson:"deal" json:"deal,omitempty"`
-	DeliveryType    string             `bson:"delivery" json:"delivery,omitempty"`
+	DeliveryType    string             `bson:"delivery_type" json:"delivery_type,omitempty"`
 	Cuisine         string             `bson:"cuisine" json:"cuisine,omitempty"`
 	MinOrderAmount  int64              `bson:"minorderamount" json:"minorderamount"`
-	Pickup          bool               `bson:"pickup" json:"pickup,omitempty"`
+	Pickup          bool               `bson:"pickup" json:"pickup"`
+	Expensive       int8               `bson:"expensive" json:"expensive"`
 }

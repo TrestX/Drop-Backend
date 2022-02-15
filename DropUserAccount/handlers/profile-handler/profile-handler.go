@@ -1,9 +1,6 @@
 package profileHandler
 
 import (
-	controller "Drop/DropUserAccount/controller/user-profile"
-	"Drop/DropUserAccount/repository/user"
-
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
@@ -15,6 +12,9 @@ import (
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"go.mongodb.org/mongo-driver/bson"
+
+	controller "Drop/DropUserAccount/controller/user-profile"
+	"Drop/DropUserAccount/repository/user"
 )
 
 var (
@@ -130,6 +130,40 @@ func UpdateProfile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	data, err := profileService.UpdateProfile(profile, claims["userid"].(string))
+	if err != nil {
+		trestCommon.ECLog1(errors.Wrapf(err, "failed to update profile"))
+		w.WriteHeader(http.StatusNotFound)
+		json.NewEncoder(w).Encode(bson.M{"status": false, "error": "Unable to Update Profile"})
+		return
+	}
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(bson.M{"status": true, "error": "", "data": data})
+	endTime := time.Now()
+	duration := endTime.Sub(startTime)
+	trestCommon.DLogMap("profile updated", logrus.Fields{
+		"duration": duration,
+	})
+}
+func VerifyPhone(w http.ResponseWriter, r *http.Request) {
+	startTime := time.Now()
+	trestCommon.DLogMap("updating profile", logrus.Fields{
+		"start_time": startTime})
+	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	tokenString := strings.Split(r.Header.Get("Authorization"), " ")
+	if len(tokenString) < 2 {
+		w.WriteHeader(http.StatusUnauthorized)
+		json.NewEncoder(w).Encode(bson.M{"status": false, "error": "authorization failed"})
+		return
+	}
+	claims, err := trestCommon.DecodeToken(tokenString[1])
+	if err != nil {
+		trestCommon.ECLog1(errors.Wrapf(err, "failed to authenticate token"))
+		w.WriteHeader(http.StatusUnauthorized)
+		json.NewEncoder(w).Encode(bson.M{"status": false, "error": "authorization failed"})
+		return
+	}
+	data, err := profileService.VerifyPhone(claims["userid"].(string))
 	if err != nil {
 		trestCommon.ECLog1(errors.Wrapf(err, "failed to update profile"))
 		w.WriteHeader(http.StatusNotFound)

@@ -77,7 +77,7 @@ func main() {
 		w.Header().Set("Access-Control-Allow-Origin", "*")
 		w.Header().Set("Access-Control-Allow-Headers", "Content-Type,access-control-allow-origin, access-control-allow-headers,Authorization")
 		token := strings.Split(r.Header.Get("Authorization"), " ")
-		url := "http://localhost:6020/api/v1" + r.URL.Path
+		url := "http://localhost:6020/api/v1" + r.URL.Path + "?" + r.URL.RawQuery
 		if len(token) > 1 {
 			sendReq(token[1], url, w, r)
 		} else {
@@ -89,7 +89,7 @@ func main() {
 		w.Header().Set("Access-Control-Allow-Origin", "*")
 		w.Header().Set("Access-Control-Allow-Headers", "Content-Type,access-control-allow-origin, access-control-allow-headers,Authorization")
 		token := strings.Split(r.Header.Get("Authorization"), " ")
-		url := "http://localhost:6020/api/v1" + r.URL.Path
+		url := "http://localhost:6020/api/v1" + r.URL.Path + "?" + r.URL.RawQuery
 		if len(token) > 1 {
 			sendReq(token[1], url, w, r)
 		} else {
@@ -101,7 +101,7 @@ func main() {
 		w.Header().Set("Access-Control-Allow-Origin", "*")
 		w.Header().Set("Access-Control-Allow-Headers", "Content-Type,access-control-allow-origin, access-control-allow-headers,Authorization")
 		token := strings.Split(r.Header.Get("Authorization"), " ")
-		url := "http://localhost:6031/api/v1" + r.URL.Path
+		url := "http://localhost:6031/api/v1" + r.URL.Path + "?" + r.URL.RawQuery
 		if len(token) > 1 {
 			sendReq(token[1], url, w, r)
 		} else {
@@ -113,7 +113,7 @@ func main() {
 		w.Header().Set("Access-Control-Allow-Origin", "*")
 		w.Header().Set("Access-Control-Allow-Headers", "Content-Type,access-control-allow-origin, access-control-allow-headers,Authorization")
 		token := strings.Split(r.Header.Get("Authorization"), " ")
-		url := "http://localhost:6031/api/v1" + r.URL.Path
+		url := "http://localhost:6031/api/v1" + r.URL.Path + "?" + r.URL.RawQuery
 		if len(token) > 1 {
 			sendReq(token[1], url, w, r)
 		} else {
@@ -125,7 +125,7 @@ func main() {
 		w.Header().Set("Access-Control-Allow-Origin", "*")
 		w.Header().Set("Access-Control-Allow-Headers", "Content-Type,access-control-allow-origin, access-control-allow-headers,Authorization")
 		token := strings.Split(r.Header.Get("Authorization"), " ")
-		url := "http://localhost:6021/api/v1" + r.URL.Path
+		url := "http://localhost:6021/api/v1" + r.URL.Path + "?" + r.URL.RawQuery
 		if len(token) > 1 {
 			sendReq(token[1], url, w, r)
 		} else {
@@ -137,7 +137,7 @@ func main() {
 		w.Header().Set("Access-Control-Allow-Origin", "*")
 		w.Header().Set("Access-Control-Allow-Headers", "Content-Type,access-control-allow-origin, access-control-allow-headers,Authorization")
 		token := strings.Split(r.Header.Get("Authorization"), " ")
-		url := "http://localhost:6021/api/v1" + r.URL.Path
+		url := "http://localhost:6021/api/v1" + r.URL.Path + "?" + r.URL.RawQuery
 		if len(token) > 1 {
 			sendReq(token[1], url, w, r)
 		} else {

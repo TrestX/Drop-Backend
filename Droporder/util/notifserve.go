@@ -1,8 +1,6 @@
 package util
 
 import (
-	entity "Drop/Droporder/entities"
-	notification "Drop/Droporder/repository/order/notificationrepo"
 	"context"
 	"errors"
 	"log"
@@ -13,6 +11,9 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"google.golang.org/api/option"
+
+	entity "Drop/Droporder/entities"
+	notification "Drop/Droporder/repository/order/notificationrepo"
 )
 
 var app *firebase.App
@@ -102,7 +103,7 @@ func (*notificationService) SendNotificationWithTopic(title, body, topic, userid
 func (*notificationService) GetNotifications(limit, skip int, status, userid, topic, title string) ([]entity.MessageData, error) {
 	filter := bson.M{}
 	if status != "" {
-		filter["nstatus"] = status
+		filter["nStatus"] = status
 	}
 	if userid != "" {
 		filter["userId"] = userid
@@ -119,7 +120,7 @@ func (*notificationService) GetNotifications(limit, skip int, status, userid, to
 func (*notificationService) DeleteNotifications(limit, skip int, status, userid, topic, title string) (string, error) {
 	filter := bson.M{}
 	if status != "" {
-		filter["nstatus"] = status
+		filter["nStatus"] = status
 	}
 	if userid != "" {
 		filter["userId"] = userid

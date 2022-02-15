@@ -9,7 +9,7 @@ import (
 type AccountService interface {
 	SignUp(cred Credentials) (string, error)
 	GSignUp(token *auth.Token) (string, error)
-	GLogin(token *auth.Token) (string, error)
+	GLogin(token string, user Credentials) (string, error)
 	Login(cred Credentials) (string, string, error)
 	VerifyEmail(cred Credentials) (string, error)
 	SendVerificationEmail(email string) (string, error)
@@ -36,4 +36,5 @@ type Credentials struct {
 	PasswordResetTime time.Time `bson:"password_reset_time,omitempty" json:"password_reset_time,omitempty"`
 	LoggedInUsing     string    `bson:"logged_in_using" json:"logged_in_using,omitempty"`
 	Deleted           bool      `bson:"deleted" json:"deleted,omitempty"`
+	SocialID          string    `bson:"social_id" json:"social_id"`
 }

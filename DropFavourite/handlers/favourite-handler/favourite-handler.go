@@ -1,10 +1,6 @@
 package favouriteHandler
 
 import (
-	controller "Drop/DropFavourite/controller/favourite"
-
-	"Drop/DropFavourite/repository/favourite"
-
 	"encoding/json"
 	"net/http"
 	"strconv"
@@ -12,11 +8,13 @@ import (
 	"time"
 
 	"github.com/aekam27/trestCommon"
-
 	"github.com/gorilla/mux"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"go.mongodb.org/mongo-driver/bson"
+
+	controller "Drop/DropFavourite/controller/favourite"
+	"Drop/DropFavourite/repository/favourite"
 )
 
 var (
@@ -200,7 +198,7 @@ func GetFavouriteShops(w http.ResponseWriter, r *http.Request) {
 	}
 	data, err := favouriteService.GetFavouriteShop(claims["userid"].(string), limit, skip)
 	if err != nil {
-		trestCommon.ECLog1(errors.Wrapf(err, "unable to set favourite"))
+		trestCommon.ECLog1(errors.Wrapf(err, "unable to get favourite"))
 
 		w.WriteHeader(http.StatusNotFound)
 		json.NewEncoder(w).Encode(bson.M{"status": false, "error": "Unable to set favourite"})

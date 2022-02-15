@@ -1,19 +1,19 @@
 package user_registration
 
 import (
-	entity "Drop/DropUserAccount/entities"
-	"Drop/DropUserAccount/repository/user"
 	"errors"
 	"time"
 
 	"firebase.google.com/go/auth"
-
+	"github.com/aekam27/trestCommon"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 	"go.mongodb.org/mongo-driver/bson"
 	"golang.org/x/crypto/bcrypt"
 
-	"github.com/aekam27/trestCommon"
+	"Drop/DropUserAccount/api"
+	entity "Drop/DropUserAccount/entities"
+	"Drop/DropUserAccount/repository/user"
 )
 
 var (
@@ -45,11 +45,21 @@ func (*accountService) GSignUp(token *auth.Token) (string, error) {
 	}
 	return "", errors.New("email already registed")
 }
-func (*accountService) GLogin(token *auth.Token) (string, error) {
-	uData, err := repo.FindOne(bson.M{"uid": token.UID}, bson.M{})
+func (*accountService) GLogin(token string, user Credentials) (string, error) {
+	uData, err := repo.FindOne(bson.M{"email": user.Email}, bson.M{})
 	if err != nil {
-		trestCommon.ECLog2("login failed password hash doesn't match", err)
-		return "", err
+		trestCommon.ECLog2("sign up user not found", err)
+		if err.Error() == "mongo: no documents in result" {
+			res, _ := repo.InsertOne(user)
+			tokenString, err := trestCommon.CreateToken(res, "", "", "created")
+			if err != nil {
+				trestCommon.ECLog3("sign up not successful", err, logrus.Fields{"email": ""})
+			}
+			return tokenString, err
+		} else {
+			return "", err
+
+		}
 	}
 	tokenString, err := trestCommon.CreateToken(uData.ID.Hex(), "", "", uData.Status)
 	if err != nil {
@@ -204,7 +214,7 @@ func (*accountService) hashAndInsertData(cred Credentials) (string, error) {
 func (*accountService) SendResetLink(email string) (string, error) {
 	var cred Credentials
 	cred.Email = email
-	_, err := checkUser(cred)
+	user, err := checkUser(cred)
 	if err != nil {
 		trestCommon.ECLog2("user not found", err)
 		return "", err
@@ -217,7 +227,7 @@ func (*accountService) SendResetLink(email string) (string, error) {
 		trestCommon.ECLog2("send reset link encryption failed", err)
 		return "", err
 	}
-	_, err = trestCommon.SendResetPasswordLink(email, resetCode)
+	err = api.SendEmail(user.Name, email, resetCode)
 	if err != nil {
 		trestCommon.ECLog2("send reset password link failed", err)
 		return "", errors.New("send reset password link failed")

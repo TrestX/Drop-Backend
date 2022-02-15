@@ -6,13 +6,13 @@ log_level: "debug"
 address: ""
 port: ""
 salt: "our salt to beused"
-encryptionkey: "deliverooDataSuperSasdfg" #must be 16 24  or 32 for aes128 aes192 or aes256 respectively 
+encryptionkey: "deliverooDataSuperSasdfg" #must be 16 24  or 32 for aes128 aes192 or aes256 respectively
 tokensecret: "tokensecret"
 mongodb:
   host: "cluster0.wj9ob.mongodb.net"
   db: "mongodb+srv"
   username: "neerajsinghi"
-  password:  "gf67fiCQG6Laz7JG"
+  password: "gf67fiCQG6Laz7JG"
   dbname: "dropDB"
 gcp:
   region: "us-east1"
@@ -40,4 +40,4 @@ api:
   getcartbyid: "http://localhost:6013/api/v1/cart"
   getcartbyids: "http://localhost:6013/api/v1/cart/list/"
   orders: "https://api.drop-deliveryapp.com/docker4/order/admin/orders/all"
-  
+  getordercount: "https://api.drop-deliveryapp.com/docker4/order/ordercount/"

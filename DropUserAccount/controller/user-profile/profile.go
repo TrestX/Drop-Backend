@@ -1,19 +1,19 @@
 package profile
 
 import (
-	"Drop/DropUserAccount/api"
-	entity "Drop/DropUserAccount/entities"
-	"Drop/DropUserAccount/repository/user"
 	"errors"
 	"strconv"
 	"strings"
 	"time"
 
+	"github.com/aekam27/trestCommon"
 	"github.com/sirupsen/logrus"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 
-	"github.com/aekam27/trestCommon"
+	"Drop/DropUserAccount/api"
+	entity "Drop/DropUserAccount/entities"
+	"Drop/DropUserAccount/repository/user"
 )
 
 var (
@@ -95,6 +95,46 @@ func (*profileService) UpdateProfile(profile *Profile, userid string) (string, e
 			logrus.Fields{
 				"user_id": userid,
 				"profile": profile,
+			})
+		return "", err
+	}
+
+	return result, nil
+}
+func (*profileService) VerifyPhone(userid string) (string, error) {
+	if userid == "" {
+		err := errors.New("user id missing")
+		trestCommon.ECLog2(
+			"phone_verified verify failed",
+			err,
+		)
+		return "", err
+	}
+	id, _ := primitive.ObjectIDFromHex(userid)
+	setParameters := bson.M{"phone_verified": true}
+	_, err := checkUser(userid)
+	if err != nil {
+		trestCommon.ECLog3(
+			"phone_verified verify failed",
+			err,
+			logrus.Fields{
+				"user_id": userid,
+			})
+		return "phone Verified Successfully", err
+
+	}
+	setParameters["update_time"] = time.Now()
+	filter := bson.M{"_id": id}
+	set := bson.M{
+		"$set": setParameters,
+	}
+	result, err := repo.UpdateOne(filter, set)
+	if err != nil {
+		trestCommon.ECLog3(
+			"update profile section",
+			err,
+			logrus.Fields{
+				"user_id": userid,
 			})
 		return "", err
 	}
@@ -209,15 +249,18 @@ func (*profileService) GetAllUsers(userID, accountType, token string) ([]AdminOu
 		userIds = append(userIds, profiles[i].ID.Hex())
 	}
 	res, err := api.GetUserOrders(userIds)
-	body := formatOutput(profiles, res)
+	resCount, err := api.GetOrdersCounts(userIds)
+	body := formatOutput(profiles, res, resCount)
 	return body, nil
 }
 
-func formatOutput(profiles []entity.UserDB, details api.OrderInteface) []AdminOutput {
+func formatOutput(profiles []entity.UserDB, details api.OrderInteface, orderCount map[string]int) []AdminOutput {
 	var OpList []AdminOutput
 	for i := 0; i < len(profiles); i++ {
 		var adminOp AdminOutput
-
+		if val, ok := orderCount[profiles[i].ID.Hex()]; ok {
+			adminOp.OrderCount = val
+		}
 		adminOp.ID = profiles[i].ID.Hex()
 		adminOp.AccountType = profiles[i].AccountType
 		adminOp.DOB = profiles[i].DOB
@@ -308,7 +351,16 @@ func (*profileService) GetAdminProfile(typ, status, stype string) ([]entity.User
 		)
 		return user, err
 	}
+	var userIds []string
 	for i := 0; i < len(user); i++ {
+		userIds = append(userIds, user[i].ID.Hex())
+	}
+	resCount, err := api.GetOrdersCounts(userIds)
+
+	for i := 0; i < len(user); i++ {
+		if val, ok := resCount[user[i].ID.Hex()]; ok {
+			user[i].OrderCount = int64(val)
+		}
 		newPdownloadurl := createPreSignedDownloadUrl(user[i].ProfilePhoto)
 		user[i].ProfilePhoto = newPdownloadurl
 		newNdownloadurl := createPreSignedDownloadUrl(user[i].NationalID)

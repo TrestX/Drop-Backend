@@ -1,9 +1,6 @@
 package shopHandler
 
 import (
-	controller "Drop/DropShop/controller/shop"
-	"Drop/DropShop/repository/shop"
-
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
@@ -12,11 +9,13 @@ import (
 	"time"
 
 	"github.com/aekam27/trestCommon"
-
 	"github.com/gorilla/mux"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"go.mongodb.org/mongo-driver/bson"
+
+	controller "Drop/DropShop/controller/shop"
+	"Drop/DropShop/repository/shop"
 )
 
 var (
@@ -448,9 +447,9 @@ func GetShopAdmin(w http.ResponseWriter, r *http.Request) {
 	statusS := r.URL.Query().Get("status")
 	featuredS := r.URL.Query().Get("featured")
 	dealS := r.URL.Query().Get("deal")
-	rating := r.URL.Query().Get("rating")
-	priceu := r.URL.Query().Get("lowerprice")
-	pricel := r.URL.Query().Get("upperprice")
+	sortSelected := r.URL.Query().Get("sort")
+	expensive := r.URL.Query().Get("expensive")
+	priceu := r.URL.Query().Get("upperprice")
 	lowest := r.URL.Query().Get("lowestDP")
 	lat := 0.0
 	long := 0.0
@@ -497,7 +496,7 @@ func GetShopAdmin(w http.ResponseWriter, r *http.Request) {
 		featured = featuredS
 	}
 	pickup := r.URL.Query().Get("pickup")
-	data, err := shopService.GetShopAdmin(limit, skip, sellerId, sType, status, featured, deal, rating, priceu, pricel, lowest, pickup, lat, long)
+	data, err := shopService.GetShopAdmin(limit, skip, sellerId, sType, status, featured, deal, sortSelected, priceu, expensive, lowest, pickup, lat, long)
 	if err != nil {
 		trestCommon.ECLog1(errors.Wrapf(err, "unable to get shop"))
 
@@ -514,6 +513,114 @@ func GetShopAdmin(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
+func GetShopBasedOnCategories(w http.ResponseWriter, r *http.Request) {
+	startTime := time.Now()
+	trestCommon.DLogMap("getting shop", logrus.Fields{
+		"start_time": startTime})
+	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	var err error
+	var category = mux.Vars(r)["category"]
+
+	data, err := shopService.GetShopBasedOnCategories(category)
+	if err != nil {
+		trestCommon.ECLog1(errors.Wrapf(err, "unable to get shop"))
+
+		w.WriteHeader(http.StatusNotFound)
+		json.NewEncoder(w).Encode(bson.M{"status": false, "error": "Unable to get shop"})
+		return
+	}
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(bson.M{"status": true, "error": "", "data": data})
+	endTime := time.Now()
+	duration := endTime.Sub(startTime)
+	trestCommon.DLogMap("shop", logrus.Fields{
+		"duration": duration,
+	})
+}
+
+type response struct {
+	name   string
+	id     int
+	stores []controller.OpSchema
+}
+
+func GetShopAccordingToOffer(w http.ResponseWriter, r *http.Request) {
+	startTime := time.Now()
+	trestCommon.DLogMap("getting shop", logrus.Fields{
+		"start_time": startTime})
+	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	var err error
+	limit := 2000
+	skip := 0
+	lat := 0.0
+	long := 0.0
+
+	if r.URL.Query().Get("lat") != "" {
+		latt, err := strconv.Atoi(r.URL.Query().Get("lat"))
+		lat = float64(latt)
+		if err != nil {
+			lat = 0.0
+		}
+	}
+	if r.URL.Query().Get("long") != "" {
+		longg, err := strconv.Atoi(r.URL.Query().Get("long"))
+		long = float64(longg)
+		if err != nil {
+			long = 0.0
+		}
+	}
+	if r.URL.Query().Get("limit") != "" {
+		limit, err = strconv.Atoi(r.URL.Query().Get("limit"))
+		if err != nil {
+			limit = 20
+		}
+	}
+	if r.URL.Query().Get("skip") != "" {
+		skip, err = strconv.Atoi(r.URL.Query().Get("skip"))
+		if err != nil {
+			skip = 0
+		}
+	}
+	data, err := shopService.GetShopAccordingToOffer(limit, skip, lat, long)
+	if err != nil {
+		trestCommon.ECLog1(errors.Wrapf(err, "unable to get shop"))
+
+		w.WriteHeader(http.StatusNotFound)
+		json.NewEncoder(w).Encode(bson.M{"status": false, "error": "Unable to get shop"})
+		return
+	}
+
+	dataArray := make([]interface{}, 0)
+	dataGrocery := make([]controller.OpSchema, 0)
+	dataRes := make([]controller.OpSchema, 0)
+	dataPharmacy := make([]controller.OpSchema, 0)
+
+	for _, sh := range data {
+		if sh.Type == "Restaurant" {
+			dataRes = append(dataRes, sh)
+		} else if sh.Type == "Pharmacy" {
+			dataPharmacy = append(dataPharmacy, sh)
+		} else {
+			dataGrocery = append(dataGrocery, sh)
+
+		}
+	}
+	dataBson := bson.M{"name": "Restaurant", "id": 1, "stores": dataRes}
+	dataArray = append(dataArray, dataBson)
+	dataBson = bson.M{"name": "Grocery Store", "id": 2, "stores": dataGrocery}
+	dataArray = append(dataArray, dataBson)
+	dataBson = bson.M{"name": "Pharmacy", "id": 3, "stores": dataPharmacy}
+	dataArray = append(dataArray, dataBson)
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(bson.M{"status": true, "error": "", "data": dataArray})
+	endTime := time.Now()
+	duration := endTime.Sub(startTime)
+	trestCommon.DLogMap("shop", logrus.Fields{
+		"duration": duration,
+	})
+}
 func GetNearestShopAdmin(w http.ResponseWriter, r *http.Request) {
 	startTime := time.Now()
 	trestCommon.DLogMap("getting shop", logrus.Fields{

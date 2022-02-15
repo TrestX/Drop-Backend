@@ -1,20 +1,20 @@
 package item
 
 import (
-	"Drop/DropItems/api"
-	entity "Drop/DropItems/entities"
-	"math/rand"
-	"strings"
-
-	"Drop/DropItems/repository/item"
 	"errors"
+	"math/rand"
+	"strconv"
+	"strings"
 	"time"
 
 	"github.com/aekam27/trestCommon"
-
 	"github.com/sirupsen/logrus"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+
+	"Drop/DropItems/api"
+	entity "Drop/DropItems/entities"
+	"Drop/DropItems/repository/item"
 )
 
 var (
@@ -527,16 +527,43 @@ func (*itemService) GetItemCategoryStructured(shopID, popular, category, deal, n
 		item[i].Images[0] = newdownloadurl
 		if _, ok := op[item[i].Category]; ok {
 			var l = op[item[i].Category]
+
 			var stru UOPStruct
 			stru.Item = item[i]
 			for _, shopDetail := range shopDetails {
 				if shopDetail.ID.Hex() == item[i].ShopID {
 					newdownloadurl := createPreSignedDownloadUrl(shopDetail.ShopLogo)
 					shopDetail.ShopLogo = newdownloadurl
+					deals := strings.Split(shopDetail.Deal, ",")
+					for _, deal := range deals {
+						if strings.Contains(deal, "percentage") {
+							deal = strings.ReplaceAll(deal, "percentage", "")
+							if strings.Contains(deal, "%") {
+								deal = strings.ReplaceAll(strings.TrimSpace(deal), "%", "")
+								percent, _ := strconv.ParseInt(strings.TrimSpace(deal), 0, 8)
+								item[i].DiscountPrice = float64(item[i].Price) - (float64(item[i].Price*percent))/100.0
+							}
+						}
+					}
 					newdownloadurl = createPreSignedDownloadUrl(shopDetail.ShopBanner)
 					shopDetail.ShopBanner = newdownloadurl
 					stru.Shop = shopDetail
 					break
+				}
+			}
+			deals := strings.Split(item[i].Deal, ",")
+			for _, deal := range deals {
+				if strings.Contains(deal, "percentage") {
+					deal = strings.ReplaceAll(deal, "percentage", "")
+					if strings.Contains(deal, "%") {
+						deal = strings.ReplaceAll(strings.TrimSpace(deal), "%", "")
+						percent, _ := strconv.ParseInt(strings.TrimSpace(deal), 0, 8)
+						if item[i].DiscountPrice != 0 {
+							item[i].DiscountPrice = float64(item[i].DiscountPrice) - (item[i].DiscountPrice*float64(percent))/100.0
+						} else {
+							item[i].DiscountPrice = float64(item[i].Price) - (float64(item[i].Price*percent))/100.0
+						}
+					}
 				}
 			}
 			review, _ := api.GetOrderReview(item[i].ID.Hex(), " ")

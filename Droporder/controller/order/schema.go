@@ -19,6 +19,7 @@ type OrderService interface {
 	GetAdminOrders(token string, limit, skip int, shopID, sellerID, deliveryId, userId, status, fromD, endD string) ([]AdminOrderOutput, error)
 	GetLatestOrders(userId, token string, limit, skip int) (AdminOrderOutput, error)
 	GetAllUsers(token string, limit, skip int, deliveryID, status string) ([]interface{}, error)
+	GetOrdersCount(userId []string) (map[string]int, error)
 }
 type Order struct {
 	PaymentID            string               `bson:"payment_id" json:"payment_id"`
@@ -37,6 +38,8 @@ type Order struct {
 	DeliveryPersonCut    int64                `bson:"delivery_person_cut" json:"delivery_person_cut"`
 	DeliveryPersonCutPer int64                `bson:"delivery_person_cut_per" json:"delivery_person_cut_per"`
 	DeliveryCode         int64                `bson:"delivery_code" json:"delivery_code"`
+	Refunded             bool                 `bson:"refunded" json:"refunded"`
+	RefundedUsing        string               `bson:"refunded_using" json:"refunded_using"`
 }
 type OrderInteface struct {
 	OrderList   []entity.OrderDB   `json:"order_list"`
@@ -56,6 +59,8 @@ type OrderOutput struct {
 	DeliveryDetails  entity.ShippingDetails `json:"deliveryDetails"`
 	ShopDetails      entity.ShopDB          `json:"shopDetails"`
 	SellerDetails    entity.UserDB          `json:"sellerDetails"`
+	RefundedUsing    string                 `bson:"refunded_using" json:"refunded_using"`
+	Refunded         bool                   `bson:"refunded" json:"refunded"`
 }
 type GEO struct {
 	Data []float64 `bson:"data" json:"data"`
@@ -84,6 +89,8 @@ type AdminOrderOutput struct {
 	Distance              float64                `json:"distance"`
 	TipAmount             int64                  `bson:"tip_amount" json:"tip_amount"`
 	UserDetails           entity.UserDB          `json:"userDetails"`
+	RefundedUsing         string                 `bson:"refunded_using" json:"refunded_using"`
+	Refunded              bool                   `bson:"refunded" json:"refunded"`
 }
 
 type AppWallet struct {

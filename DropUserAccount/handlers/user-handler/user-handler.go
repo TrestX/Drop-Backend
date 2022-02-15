@@ -1,9 +1,6 @@
 package userHandler
 
 import (
-	controller "Drop/DropUserAccount/controller/user-registration"
-	"Drop/DropUserAccount/repository/user"
-	"context"
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
@@ -15,6 +12,9 @@ import (
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"go.mongodb.org/mongo-driver/bson"
+
+	controller "Drop/DropUserAccount/controller/user-registration"
+	"Drop/DropUserAccount/repository/user"
 )
 
 var (
@@ -51,64 +51,22 @@ func SignUp(w http.ResponseWriter, r *http.Request) {
 	trestCommon.DLogMap("sign up successfull", logrus.Fields{"duration": duration})
 }
 
-type GID struct {
-	Id string `json:"id"`
-}
-
 func GSignUp(w http.ResponseWriter, r *http.Request) {
 	startTime := time.Now()
 	trestCommon.DLogMap("sign up", logrus.Fields{
 		"start_time": startTime})
 	w.Header().Set("Content-Type", "application/json")
 	w.Header().Set("Access-Control-Allow-Origin", "*")
-	var gid GID
-	body, _ := ioutil.ReadAll(r.Body)
-	err := json.Unmarshal(body, &gid)
+	user, err := GetCredentials(r)
 	if err != nil {
-		trestCommon.ECLog1(errors.Wrapf(err, "unable to unmarshal body"))
+		trestCommon.ECLog1(errors.Wrapf(err, "unable to get credentials social login"))
 		w.WriteHeader(http.StatusUnsupportedMediaType)
 		json.NewEncoder(w).Encode(bson.M{"status": false, "error": "Something Went wrong"})
 		return
-	}
-	client, _ := trestCommon.AuthClient()
-	token, err := client.VerifyIDToken(context.Background(), gid.Id)
-	if err != nil {
-	}
-	data, err := accountService.GSignUp(token)
-	if err != nil || data == "" {
-		trestCommon.ECLog1(errors.Wrapf(err, "unable to singup"))
 
-		w.WriteHeader(http.StatusUnauthorized)
-		json.NewEncoder(w).Encode(bson.M{"status": false, "error": "email already registered"})
-		return
 	}
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(bson.M{"status": true, "error": "", "message": "user registered successfully", "token": data})
-	endTime := time.Now()
-	duration := endTime.Sub(startTime)
-	trestCommon.DLogMap("sign up successfull", logrus.Fields{"duration": duration})
-}
 
-func GLogin(w http.ResponseWriter, r *http.Request) {
-	startTime := time.Now()
-	trestCommon.DLogMap("sign up", logrus.Fields{
-		"start_time": startTime})
-	w.Header().Set("Content-Type", "application/json")
-	w.Header().Set("Access-Control-Allow-Origin", "*")
-	var gid GID
-	body, _ := ioutil.ReadAll(r.Body)
-	err := json.Unmarshal(body, &gid)
-	if err != nil {
-		trestCommon.ECLog1(errors.Wrapf(err, "unable to unmarshal body"))
-		w.WriteHeader(http.StatusUnsupportedMediaType)
-		json.NewEncoder(w).Encode(bson.M{"status": false, "error": "Something Went wrong"})
-		return
-	}
-	client, _ := trestCommon.AuthClient()
-	token, err := client.VerifyIDToken(context.Background(), gid.Id)
-	if err != nil {
-	}
-	data, err := accountService.GLogin(token)
+	data, err := accountService.GLogin("", user)
 	if err != nil || data == "" {
 		trestCommon.ECLog1(errors.Wrapf(err, "unable to singup"))
 

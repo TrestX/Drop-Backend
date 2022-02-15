@@ -1,20 +1,20 @@
 package shop
 
 import (
-	"Drop/DropShop/api"
-	entity "Drop/DropShop/entities"
-	"Drop/DropShop/repository/shop"
+	"sort"
 	"strconv"
-
-	"github.com/aekam27/trestCommon"
-
-	"errors"
 	"strings"
 	"time"
 
+	"github.com/aekam27/trestCommon"
+	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+
+	"Drop/DropShop/api"
+	entity "Drop/DropShop/entities"
+	"Drop/DropShop/repository/shop"
 )
 
 var (
@@ -67,6 +67,7 @@ func (add *shopService) AddShop(shop *Shop, sellerId string) (string, error) {
 	shopEntity.State = shop.State
 	shopEntity.Pin = shop.Pin
 	shopEntity.Pickup = shop.Pickup
+	shopEntity.Expensive = shop.Expensive
 	geoLocation := []float64{shop.Longitude, shop.Latitude}
 	shopEntity.GeoLocation = bson.M{"type": "Point", "coordinates": geoLocation}
 	shopEntity.Primary = shop.Primary
@@ -147,11 +148,17 @@ func (*shopService) UpdateShop(shop *Shop, shopid string) (string, error) {
 	if !shop.Featured {
 		setParameters["featured"] = false
 	}
+	if !shop.Pickup {
+		setParameters["pickup"] = false
+	}
 	if shop.Type != "" {
 		setParameters["type"] = shop.Type
 	}
 	if shop.Deal != "" {
 		setParameters["deal"] = shop.Deal
+	}
+	if shop.Expensive != 0 {
+		setParameters["expensive"] = shop.Expensive
 	}
 	if shop.DeliveryType != "" {
 		setParameters["delivery"] = shop.DeliveryType
@@ -455,6 +462,10 @@ func (add *shopService) AddShopAdmin(shop *Shop) (string, error) {
 	if shop.Cuisine != "" {
 		shopEntity.Cuisine = shop.Cuisine
 	}
+	if shop.Expensive != 0 {
+		shopEntity.Expensive = shop.Expensive
+	}
+	shopEntity.Pickup = shop.Pickup
 	shopPics := []string{}
 	if len(shop.ShopPhotos) > 0 {
 		l := []string{}
@@ -482,7 +493,7 @@ func (add *shopService) AddShopAdmin(shop *Shop) (string, error) {
 	return result, nil
 }
 
-func (*shopService) GetShopAdmin(limit, skip int, sellerId, sType, status, featured, deal, rating, priceu, pricel, lowest, pickup string, lat, long float64) ([]OpSchema, error) {
+func (*shopService) GetShopAdmin(limit, skip int, sellerId, sType, status, featured, deal, sortString, priceu, expensive, lowest, pickup string, lat, long float64) ([]OpSchema, error) {
 	filter := bson.M{}
 	if sellerId != "" {
 		if strings.Contains(sellerId, ",") {
@@ -532,13 +543,12 @@ func (*shopService) GetShopAdmin(limit, skip int, sellerId, sType, status, featu
 			filter["deal"] = bson.M{"$regex": deal, "$options": "i"}
 		}
 	}
-	if rating != "" {
-		filter["rating"] = bson.M{"$gt": 3.5}
-	}
-	if pricel != "" && priceu != "" {
-		pl, _ := strconv.Atoi(pricel)
-		pu, _ := strconv.Atoi(priceu)
-		filter["minorderamount"] = bson.M{"$lt": pl, "$gt": pu}
+
+	if expensive != "0" {
+		expens, err := strconv.ParseInt(strings.TrimSpace(expensive), 0, 8)
+		if err == nil {
+			filter["expensive"] = expens
+		}
 	}
 
 	if lowest != "" {
@@ -576,6 +586,8 @@ func (*shopService) GetShopAdmin(limit, skip int, sellerId, sType, status, featu
 	}
 	sellerList, err := api.GetUsersDetailsByIDs(l)
 	if err != nil {
+		trestCommon.ECLog1(errors.Wrapf(err, "userListNotfound"))
+
 		return []OpSchema{}, err
 	}
 	opList := []OpSchema{}
@@ -617,6 +629,80 @@ func (*shopService) GetShopAdmin(limit, skip int, sellerId, sType, status, featu
 				body.Timing = shops[j].Timing
 				body.Type = shops[j].Type
 				body.SellerEmail = sellerList[k].Email
+				body.Pickup = shops[j].Pickup
+				opList = append(opList, body)
+				break
+			}
+		}
+	}
+	if sortString == "rating" {
+		sort.Slice(opList, func(p, q int) bool {
+			return opList[p].Rating > opList[q].Rating
+		})
+	} else if sortString == "alphabet" {
+		sort.Slice(opList, func(p, q int) bool {
+			return opList[p].ShopName < opList[q].ShopName
+		})
+	}
+	return opList, nil
+}
+
+func (*shopService) GetShopAccordingToOffer(limit, skip int, lat, long float64) ([]OpSchema, error) {
+	filter := bson.M{"deal": bson.M{"$exists": true, "$ne": ""}}
+	shops, err := repo.Find(filter, bson.M{}, limit, skip)
+	if err != nil {
+		return []OpSchema{}, err
+	}
+	l := []string{}
+	for i := 0; i < len(shops); i++ {
+		l = append(l, shops[i].SellerID)
+	}
+	sellerList, err := api.GetUsersDetailsByIDs(l)
+	if err != nil {
+		trestCommon.ECLog1(errors.Wrapf(err, "userListNotfound"))
+
+		return []OpSchema{}, err
+	}
+	opList := []OpSchema{}
+	for j := 0; j < len(shops); j++ {
+		for k := 0; k < len(sellerList); k++ {
+			if shops[j].SellerID == sellerList[k].ID.Hex() {
+				var body OpSchema
+				body.Address = shops[j].Address
+				body.City = shops[j].City
+				body.State = shops[j].State
+				body.Country = shops[j].Country
+				body.CreatedTime = shops[j].CreatedTime
+				body.UpdatedTime = shops[j].UpdatedTime
+				body.Featured = shops[j].Featured
+				body.GeoLocation = shops[j].GeoLocation
+				body.ID = shops[j].ID
+				body.Pin = shops[j].Pin
+				body.Deal = shops[j].Deal
+				body.DeliveryType = shops[j].DeliveryType
+				body.Cuisine = shops[j].Cuisine
+				body.Primary = shops[j].Primary
+				body.SellerID = shops[j].SellerID
+				nerBannerUrl := createPreSignedDownloadUrl(shops[j].ShopBanner)
+				body.ShopBanner = nerBannerUrl
+				body.Tags = shops[j].Tags
+				body.MinOrderAmount = shops[j].MinOrderAmount
+				body.ShopDescription = shops[j].ShopDescription
+				nerLogoUrl := createPreSignedDownloadUrl(shops[j].ShopLogo)
+				body.ShopLogo = nerLogoUrl
+				body.ShopName = shops[j].ShopName
+				newShop := []string{}
+				for o := 0; o < len(shops[j].ShopPhotos); o++ {
+					nerShopUrl := createPreSignedDownloadUrl(shops[j].ShopPhotos[o])
+					newShop = append(newShop, nerShopUrl)
+				}
+				body.ShopPhotos = newShop
+				body.Rating = shops[j].Rating
+				body.ShopStatus = shops[j].ShopStatus
+				body.Timing = shops[j].Timing
+				body.Type = shops[j].Type
+				body.SellerEmail = sellerList[k].Email
+				body.Pickup = shops[j].Pickup
 				opList = append(opList, body)
 				break
 			}
@@ -698,6 +784,7 @@ func (*shopService) GetNearestShopAdmin(limit, skip int, sellerId, sType, status
 				body.Timing = shops[j].Timing
 				body.Type = shops[j].Type
 				body.SellerEmail = sellerList[k].Email
+				body.Pickup = shops[j].Pickup
 				opList = append(opList, body)
 				break
 			}
@@ -759,6 +846,8 @@ func (*shopService) GetTopRatedShopAdmin(limit, skip int, sellerId, sType, statu
 				body.ShopLogo = nerLogoUrl
 				body.ShopName = shops[j].ShopName
 				body.Rating = shops[j].Rating
+				body.Pickup = shops[j].Pickup
+
 				newShop := []string{}
 				for o := 0; o < len(shops[j].ShopPhotos); o++ {
 					nerShopUrl := createPreSignedDownloadUrl(shops[j].ShopPhotos[o])
@@ -798,4 +887,62 @@ func (*shopService) GetAdminUsersWithIDs(shopIds []string) ([]entity.ShopDB, err
 		users[i].ShopBanner = newNdownloadurl
 	}
 	return users, nil
+}
+
+func (*shopService) GetShopBasedOnCategories(categories string) ([]entity.OutPutCategorySchema, error) {
+	aggregate := bson.A{}
+
+	groupIT := bson.M{"$group": bson.M{
+		"_id": "$items",
+	}}
+	lookUpIt := bson.M{"$lookup": bson.M{
+		"from":         "item",
+		"localField":   "store_id",
+		"foreignField": "storeId",
+		"as":           "items",
+	}}
+
+	unWindIt := bson.M{"$unwind": bson.M{
+		"path": "$items",
+	}}
+	addField := bson.M{
+		"$addFields": bson.M{
+			"storeId": bson.M{
+				"$toString": "$_id",
+			},
+		},
+	}
+
+	addToFieldShop := bson.M{"$addFields": bson.M{
+		"storeId": bson.M{
+			"$toObjectId": "$_id.shop_id",
+		},
+	}}
+
+	lookUpShop := bson.M{"$lookup": bson.M{
+		"from":         "shop",
+		"localField":   "storeId",
+		"foreignField": "_id",
+		"as":           "shop",
+	}}
+	groupdShop := bson.M{"$group": bson.M{
+		"_id": "$shop",
+		"item": bson.M{
+			"$addToSet": "$_id",
+		},
+	},
+	}
+	categorySplit := strings.Split(categories, ",")
+	or := bson.A{}
+	for _, cat := range categorySplit {
+		or = append(or, bson.M{
+			"_id.category": bson.M{
+				"$regex":   cat,
+				"$options": "i",
+			},
+		})
+	}
+	matchIT := bson.M{"$match": bson.M{"$or": or}}
+	aggregate = append(aggregate, addField, lookUpIt, unWindIt, groupIT, matchIT, addToFieldShop, lookUpShop, groupdShop)
+	return repo.FindUsingAggregaye(aggregate)
 }

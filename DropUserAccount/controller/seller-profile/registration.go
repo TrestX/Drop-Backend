@@ -1,11 +1,6 @@
 package seller_registration
 
 import (
-	api "Drop/DropUserAccount/api"
-	controller "Drop/DropUserAccount/controller/user-registration"
-	entity "Drop/DropUserAccount/entities"
-	"Drop/DropUserAccount/repository/user"
-
 	"errors"
 	"strings"
 	"time"
@@ -15,6 +10,11 @@ import (
 	"github.com/spf13/viper"
 	"go.mongodb.org/mongo-driver/bson"
 	"golang.org/x/crypto/bcrypt"
+
+	api "Drop/DropUserAccount/api"
+	controller "Drop/DropUserAccount/controller/user-registration"
+	entity "Drop/DropUserAccount/entities"
+	"Drop/DropUserAccount/repository/user"
 )
 
 var (

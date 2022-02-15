@@ -1,19 +1,18 @@
 package admin
 
 import (
-	"Drop/DropAdmin/api"
-	entity "Drop/DropAdmin/entities"
-	"Drop/DropAdmin/repository/admin"
-
-	"github.com/aekam27/trestCommon"
-
 	"errors"
 	"strings"
 	"time"
 
+	"github.com/aekam27/trestCommon"
 	"github.com/sirupsen/logrus"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+
+	"Drop/DropAdmin/api"
+	entity "Drop/DropAdmin/entities"
+	"Drop/DropAdmin/repository/admin"
 )
 
 var (
@@ -154,8 +153,12 @@ func (*adminService) GetAllBanners(token string, limit, skip int) ([]entity.Bann
 	return banners, nil
 }
 
-func (*adminService) GetActivebanners(limit, skip int) ([]entity.BannerDB, error) {
-	banners, err := repo.Find(bson.M{"status": "Active"}, bson.M{}, limit, skip)
+func (*adminService) GetActivebanners(limit, skip int, bannerType string) ([]entity.BannerDB, error) {
+	filter := bson.M{"status": "Active"}
+	if bannerType != "" {
+		filter["category"] = bannerType
+	}
+	banners, err := repo.Find(filter, bson.M{}, limit, skip)
 	if err != nil {
 		trestCommon.ECLog2(
 			"Get banners Details section",

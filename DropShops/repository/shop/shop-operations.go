@@ -1,14 +1,15 @@
 package shop
 
 import (
-	entity "Drop/DropShop/entities"
 	"context"
 	"errors"
+	"strings"
 
 	"github.com/aekam27/trestCommon"
-
 	"github.com/sirupsen/logrus"
 	"go.mongodb.org/mongo-driver/bson"
+
+	entity "Drop/DropShop/entities"
 )
 
 type repo struct {
@@ -130,7 +131,7 @@ func (r *repo) Find(filter, projection bson.M, limit, skip int) ([]entity.ShopDB
 
 func (r *repo) FindSort(filter, projection, filter1 bson.M, limit, skip int) ([]entity.ShopDB, error) {
 	var shops []entity.ShopDB
-	cursor, err := trestCommon.FindSort(filter, projection, filter1, r.CollectionName)
+	cursor, err := trestCommon.FindSort(filter, projection, filter1, limit, skip, r.CollectionName)
 	if err != nil {
 		trestCommon.ECLog3(
 			"Find shop",
@@ -216,4 +217,73 @@ func (r *repo) FindWithIDs(filter, projection bson.M) ([]entity.ShopDB, error) {
 		users = append(users, user)
 	}
 	return users, nil
+}
+func (r *repo) FindUsingAggregaye(aggreateStruct bson.A) ([]entity.OutPutCategorySchema, error) {
+	var shops []entity.OutPutCategorySchema
+	cursor, err := trestCommon.Aggregate(aggreateStruct, r.CollectionName)
+	if err != nil {
+		trestCommon.ECLog3(
+			"Find shop",
+			err,
+			logrus.Fields{
+				"filter":          aggreateStruct,
+				"collection name": r.CollectionName,
+			})
+		return shops, err
+	}
+	defer cursor.Close(context.Background())
+	for cursor.Next(context.TODO()) {
+		var shop entity.ShopAggreate
+		var shopStruc entity.OutPutCategorySchema
+		if err = cursor.Decode(&shop); err != nil {
+			trestCommon.ECLog3(
+				"Find shops",
+				err,
+				logrus.Fields{
+					"filter":          aggreateStruct,
+					"collection name": r.CollectionName,
+					"error at":        cursor.RemainingBatchLength(),
+				})
+			return shops, nil
+		}
+		categoryS := ""
+		for _, item := range shop.Item {
+			if categoryS != "" {
+				categoryS += ","
+			}
+			for i := range item.Images {
+				newdownloadurl := createPreSignedDownloadUrl(item.Images[i])
+				item.Images[i] = newdownloadurl
+			}
+			if strings.Contains(categoryS, item.Category) {
+				categoryS += item.Category
+			}
+		}
+		newdownloadurl := createPreSignedDownloadUrl(shop.ID[0].ShopBanner)
+		shop.ID[0].ShopBanner = newdownloadurl
+		newdownloadurl = createPreSignedDownloadUrl(shop.ID[0].ShopLogo)
+		shop.ID[0].ShopLogo = newdownloadurl
+		for i := range shop.ID[0].ShopPhotos {
+			newdownloadurl = createPreSignedDownloadUrl(shop.ID[0].ShopPhotos[i])
+			shop.ID[0].ShopPhotos[i] = newdownloadurl
+		}
+		shopStruc = entity.OutPutCategorySchema{shop.ID[0], "", shop.Item}
+
+		shops = append(shops, shopStruc)
+	}
+	return shops, nil
+
+}
+func createPreSignedDownloadUrl(url string) string {
+	s := strings.Split(url, "?")
+	if len(s) > 0 {
+		o := strings.Split(s[0], "/")
+		if len(o) > 3 {
+			fileName := o[4]
+			path := o[3]
+			downUrl, _ := trestCommon.PreSignedDownloadUrl(fileName, path)
+			return downUrl
+		}
+	}
+	return ""
 }

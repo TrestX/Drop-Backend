@@ -701,6 +701,37 @@ func GetOrderWithIDs(w http.ResponseWriter, r *http.Request) {
 		"duration": duration,
 	})
 }
+func GetOrdersCount(w http.ResponseWriter, r *http.Request) {
+	startTime := time.Now()
+	trestCommon.DLogMap("setting item", logrus.Fields{
+		"start_time": startTime})
+	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	var err error
+	var order = mux.Vars(r)["userIds"]
+	if order == "" {
+		trestCommon.ECLog1(errors.Wrapf(err, "unable to set item"))
+
+		w.WriteHeader(http.StatusNotFound)
+		json.NewEncoder(w).Encode(bson.M{"status": false, "error": "Unable to set item"})
+		return
+	}
+	orders := strings.Split(order, ",")
+	data, err := orderService.GetOrdersCount(orders)
+	if err != nil {
+		trestCommon.ECLog1(errors.Wrapf(err, "unable to set item"))
+		w.WriteHeader(http.StatusNotFound)
+		json.NewEncoder(w).Encode(bson.M{"status": false, "error": "Unable to set item"})
+		return
+	}
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(bson.M{"status": true, "error": "", "data": data})
+	endTime := time.Now()
+	duration := endTime.Sub(startTime)
+	trestCommon.DLogMap("item updated", logrus.Fields{
+		"duration": duration,
+	})
+}
 
 func GetAdminOrders(w http.ResponseWriter, r *http.Request) {
 	startTime := time.Now()

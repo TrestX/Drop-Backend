@@ -84,8 +84,12 @@ var routes = Routes{
 		"/order/latest/order",
 		orderHandler.GetLatestOrders,
 	},
-
-	//
+	Route{
+		"order",
+		"GET",
+		"/order/ordercount/{userIds}",
+		orderHandler.GetOrdersCount,
+	},
 
 	Route{
 		"ordernotification",

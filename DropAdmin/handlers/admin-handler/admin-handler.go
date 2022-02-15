@@ -1,9 +1,6 @@
 package adminHandler
 
 import (
-	controller "Drop/DropAdmin/controller/admin"
-
-	"Drop/DropAdmin/repository/admin"
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
@@ -12,11 +9,13 @@ import (
 	"time"
 
 	"github.com/aekam27/trestCommon"
-
 	"github.com/gorilla/mux"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"go.mongodb.org/mongo-driver/bson"
+
+	controller "Drop/DropAdmin/controller/admin"
+	"Drop/DropAdmin/repository/admin"
 )
 
 var (
@@ -128,7 +127,7 @@ func UpdateBanner(w http.ResponseWriter, r *http.Request) {
 
 func GetActiveBanners(w http.ResponseWriter, r *http.Request) {
 	startTime := time.Now()
-	trestCommon.DLogMap("get all banners", logrus.Fields{
+	trestCommon.DLogMap("get all active banners", logrus.Fields{
 		"start_time": startTime})
 	w.Header().Set("Content-Type", "application/json")
 	w.Header().Set("Access-Control-Allow-Origin", "*")
@@ -137,6 +136,7 @@ func GetActiveBanners(w http.ResponseWriter, r *http.Request) {
 	skip := 0
 	limitS := r.URL.Query().Get("limit")
 	skipS := r.URL.Query().Get("skip")
+	bannerType := r.URL.Query().Get("type")
 	if limitS != "" {
 		limit, err = strconv.Atoi(limitS)
 		if err != nil {
@@ -149,7 +149,8 @@ func GetActiveBanners(w http.ResponseWriter, r *http.Request) {
 			skip = 0
 		}
 	}
-	data, err := bannerService.GetActivebanners(limit, skip)
+
+	data, err := bannerService.GetActivebanners(limit, skip, bannerType)
 	if err != nil {
 		trestCommon.ECLog1(errors.Wrapf(err, "unable to get all banners"))
 

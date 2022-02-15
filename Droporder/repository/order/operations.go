@@ -1,14 +1,15 @@
 package order
 
 import (
-	entity "Drop/Droporder/entities"
 	"context"
 	"errors"
 
 	"github.com/aekam27/trestCommon"
-
 	"github.com/sirupsen/logrus"
 	"go.mongodb.org/mongo-driver/bson"
+
+	entity "Drop/Droporder/entities"
+
 )
 
 type repo struct {
@@ -83,7 +84,7 @@ func (r *repo) FindOne(filter, projection bson.M) (entity.OrderDB, error) {
 
 func (r *repo) Find(filter, projection bson.M, limit, skip int) ([]entity.OrderDB, error) {
 	var orders []entity.OrderDB
-	cursor, err := trestCommon.FindSort(filter, projection, bson.M{"_id": -1}, r.CollectionName)
+	cursor, err := trestCommon.FindSort(filter, projection, bson.M{"_id": -1}, limit, skip, r.CollectionName)
 	if err != nil {
 		trestCommon.ECLog3(
 			"Find orders",

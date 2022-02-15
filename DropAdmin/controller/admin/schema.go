@@ -5,7 +5,7 @@ import entity "Drop/DropAdmin/entities"
 type AdminService interface {
 	AddBanner(banners *Banners) (string, error)
 	UpdateBannerStatus(banners *Banners, bannerId string) (string, error)
-	GetActivebanners(limit, skip int) ([]entity.BannerDB, error)
+	GetActivebanners(limit, skip int, bannerType string) ([]entity.BannerDB, error)
 	GetAllBanners(token string, limit, skip int) ([]entity.BannerDB, error)
 }
 

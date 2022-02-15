@@ -1,10 +1,6 @@
 package itemHandler
 
 import (
-	controller "Drop/DropItems/controller/item"
-
-	"Drop/DropItems/repository/item"
-
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
@@ -13,11 +9,13 @@ import (
 	"time"
 
 	"github.com/aekam27/trestCommon"
-
 	"github.com/gorilla/mux"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"go.mongodb.org/mongo-driver/bson"
+
+	controller "Drop/DropItems/controller/item"
+	"Drop/DropItems/repository/item"
 )
 
 var (
@@ -587,6 +585,16 @@ func GetItemStruc(w http.ResponseWriter, r *http.Request) {
 	deal := r.URL.Query().Get("deal")
 	popular := r.URL.Query().Get("popular")
 	data, err := itemService.GetItemCategoryStructured(shopID, popular, category, deal, name, typee, sellerId, search, featured, stypee, limit, skip)
+	var dataArray []interface{}
+	var categories []string
+	i := 1
+
+	for key, val := range data {
+		newData := bson.M{"categoryTitle": key, "items": val, "id": i}
+		dataArray = append(dataArray, newData)
+		categories = append(categories, key)
+		i++
+	}
 	if err != nil {
 		trestCommon.ECLog1(errors.Wrapf(err, "unable to get item"))
 
@@ -595,7 +603,7 @@ func GetItemStruc(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(bson.M{"status": true, "error": "", "data": data})
+	json.NewEncoder(w).Encode(bson.M{"status": true, "error": "", "data": data, "dataArray": dataArray, "categories": categories})
 	endTime := time.Now()
 	duration := endTime.Sub(startTime)
 	trestCommon.DLogMap("item retrieved", logrus.Fields{

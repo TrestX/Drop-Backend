@@ -1,7 +1,6 @@
 package api
 
 import (
-	entity "Drop/DropShop/entities"
 	"encoding/json"
 	"strings"
 	"time"
@@ -9,6 +8,8 @@ import (
 	"github.com/aekam27/trestCommon"
 	"github.com/spf13/viper"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+
+	entity "Drop/DropShop/entities"
 )
 
 type UserResponse struct {

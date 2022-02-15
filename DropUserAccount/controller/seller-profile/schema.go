@@ -1,8 +1,9 @@
 package seller_registration
 
 import (
-	entity "Drop/DropUserAccount/entities"
 	"time"
+
+	entity "Drop/DropUserAccount/entities"
 )
 
 type SellerAccountService interface {
@@ -12,6 +13,7 @@ type Credentials struct {
 	Email                      string         `bson:"email" json:"email,omitempty"`
 	Password                   string         `bson:"password" json:"password,omitempty"`
 	CreatedDate                time.Time      `bson:"created_date" json:"created_date,omitempty"`
+	CompanyName                string         `bson:"company_name" json:"company_name,omitempty"`
 	Name                       string         `bson:"name" json:"name,omitempty"`
 	Status                     string         `bson:"status" json:"status,omitempty"`
 	Gender                     string         `bson:"gender" json:"gender,omitempty"`

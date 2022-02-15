@@ -46,7 +46,8 @@ type ShopDB struct {
 	Tags            string             `bson:"tags" json:"tags,omitempty"`
 	Rating          float64            `bson:"rating" json:"rating,omitempty"`
 	MinOrderAmount  int64              `bson:"minorderamount" json:"minorderamount"`
-	Pickup          bool               `bson:"pickup" json:"pickup,omitempty"`
+	Pickup          bool               `bson:"pickup" json:"pickup"`
+	Expensive       int8               `bson:"expensive" json:"expensive"`
 }
 
 type UserDB struct {
@@ -87,4 +88,14 @@ type UserDB struct {
 }
 type ShopType struct {
 	Name string `bson:"name" json:"name,omitempty"`
+}
+
+type OutPutCategorySchema struct {
+	ShopDB
+	Category string   `json:"category,omitempty"`
+	Items    []ItemDB `json:"items,omitempty"`
+}
+type ShopAggreate struct {
+	ID   []ShopDB `bson:"_id"`
+	Item []ItemDB `bson:"item"`
 }

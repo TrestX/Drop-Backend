@@ -14,6 +14,8 @@ type ShopDB struct {
 	Country         string             `bson:"country" json:"country"`
 	State           string             `bson:"state" json:"state"`
 	City            string             `bson:"city" json:"city"`
+	DeliveryType    string             `bson:"delivery_type" json:"delivery_type"`
+	Pickup          bool               `bson:"pickup" json:"pickup"`
 	Pin             string             `bson:"pin" json:"pin"`
 	Primary         bool               `bson:"primary" json:"primary"`
 	Type            string             `bson:"type" json:"type"`
@@ -52,6 +54,8 @@ type OrderDB struct {
 	AddedTime         time.Time          `bson:"added_time" json:"added_time"`
 	TipAmount         int64              `bson:"tip_amount" json:"tip_amount"`
 	DeliveryCode      int64              `bson:"delivery_code" json:"delivery_code"`
+	RefundedUsing     string             `bson:"refunded_using" json:"refunded_using"`
+	Refunded          bool               `bson:"refunded" json:"refunded"`
 }
 
 type UserDB struct {

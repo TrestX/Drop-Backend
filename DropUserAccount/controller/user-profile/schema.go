@@ -4,6 +4,7 @@ import entity "Drop/DropUserAccount/entities"
 
 type ProfileService interface {
 	UpdateProfile(profile *Profile, userid string) (string, error)
+	VerifyPhone(userid string) (string, error)
 	GetProfile(userID, token string) (entity.UserDB, int, int, int, int, error)
 	CheckPhoneNumber(phoneNumber string) (entity.UserDB, error)
 	GetAllUsers(userID, accountType, token string) ([]AdminOutput, error)
@@ -46,7 +47,8 @@ type AdminOutput struct {
 	DOB         string     `json:"dob,omitempty"`
 	AccountType string     `json:"account_type,omitempty"`
 	Wallet      string     `json:"wallet,omitempty"`
-	Orders      []OrdersOP `json:"orders"`
+	OrderCount  int        `json:"order_count,omitempty"`
+	Orders      []OrdersOP `json:"orders,omitempty"`
 }
 
 type OrdersOP struct {

@@ -1,13 +1,14 @@
 package router
 
 import (
+	"net/http"
+
 	deliveryHandler "Drop/DropUserAccount/handlers/delivery-handler"
 	profileHandler "Drop/DropUserAccount/handlers/profile-handler"
 	sellerHandler "Drop/DropUserAccount/handlers/seller-handler"
 	settingHandler "Drop/DropUserAccount/handlers/setting-handler"
 	userHandler "Drop/DropUserAccount/handlers/user-handler"
 	utilHandler "Drop/DropUserAccount/handlers/util-handler"
-	"net/http"
 )
 
 type Route struct {
@@ -42,13 +43,13 @@ var routes = Routes{
 	Route{
 		"signup",
 		"POST",
-		"/user/google/login",
-		userHandler.GLogin,
+		"/user/social/login",
+		userHandler.GSignUp,
 	},
 	Route{
 		"signup",
 		"POST",
-		"/user/google/signup",
+		"/user/social/signup",
 		userHandler.GSignUp,
 	},
 	Route{
@@ -56,6 +57,12 @@ var routes = Routes{
 		"POST",
 		"/user/profile",
 		profileHandler.SetProfile,
+	},
+	Route{
+		"profile",
+		"POST",
+		"/user/verifyphone",
+		profileHandler.VerifyPhone,
 	},
 	Route{
 		"profile",

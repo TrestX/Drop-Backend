@@ -30,6 +30,7 @@ api:
   addressbyidurl: "https://api.drop-deliveryapp.com/docker1/address/"
   orderIdsurl: "https://api.drop-deliveryapp.com/docker4/order/list/"
   getorderbyid: "https://api.drop-deliveryapp.com/docker4/order/"
+  getordercount: "https://api.drop-deliveryapp.com/docker4/order/ordercount/"
   updateprofileurl: "https://api.drop-deliveryapp.com/docker1/user/profile"
   getprofileurl: "https://api.drop-deliveryapp.com/docker1/user/profile"
   getprofilebyidsurl: "https://api.drop-deliveryapp.com/docker1/user/list/"

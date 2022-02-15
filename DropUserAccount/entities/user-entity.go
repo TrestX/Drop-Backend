@@ -22,6 +22,7 @@ type UserDB struct {
 	VerificationCode           string             `bson:"verification_code" json:"verification_code,omitempty"`
 	PasswordResetCode          string             `bson:"password_reset_code" json:"password_reset_code,omitempty"`
 	PasswordResetTime          time.Time          `bson:"password_reset_time,omitempty" json:"password_reset_time,omitempty"`
+	PhoneVerified              bool               `bson:"phone_verified" json:"phone_verified,omitempty"`
 	LoggedInUsing              string             `bson:"logged_in_using" json:"logged_in_using,omitempty"`
 	Theme                      string             `bson:"theme" json:"theme,omitempty"`
 	Language                   string             `bson:"language" json:"language,omitempty"`
@@ -45,8 +46,10 @@ type UserDB struct {
 	BankName                   string             `bson:"bankName" json:"bankName,omitempty"`
 	AccountNumber              string             `bson:"account_number" json:"account_number,omitempty"`
 	IFSC                       string             `bson:"ifsc" json:"ifsc,omitempty"`
-	Tags                       string             `bson:"tags" json:"tags"`
-	MinOrderAmount             int64              `bson:"minorderamount" json:"minorderamount"`
+	Tags                       string             `bson:"tags" json:"tags,omitempty"`
+	MinOrderAmount             int64              `bson:"minorderamount" json:"minorderamount,omitempty"`
+	CompanyName                string             `bson:"company_name" json:"company_name,omitempty"`
+	OrderCount                 int64              `json:"order_count"`
 }
 type ShopType struct {
 	Name string `bson:"name" json:"name,omitempty"`

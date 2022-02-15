@@ -1,9 +1,9 @@
 package shop
 
 import (
-	entity "Drop/DropShop/entities"
-
 	"go.mongodb.org/mongo-driver/bson"
+
+	entity "Drop/DropShop/entities"
 )
 
 type ShopRepository interface {
@@ -15,4 +15,5 @@ type ShopRepository interface {
 	UpdateOne(filter, update bson.M) (string, error)
 	DeleteOne(filter bson.M) error
 	FindOneSetting(filter, projection bson.M) (entity.SettingDB, error)
+	FindUsingAggregaye(aggreateStruct bson.A) ([]entity.OutPutCategorySchema, error)
 }
